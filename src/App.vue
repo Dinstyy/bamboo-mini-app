@@ -1,8 +1,7 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
-// import Button from 'primevue/button'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <HelloWorld />
+  <RouterView />
 </template>
