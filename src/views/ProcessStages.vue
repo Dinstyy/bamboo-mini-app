@@ -15,8 +15,8 @@
           </svg>
           <span>Dashboard</span>
         </router-link>
-        
-        <router-link to="/companies" class="nav-item active">
+
+        <router-link to="/companies" class="nav-item">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M3.33333 3.33333H16.6667V16.6667H3.33333V3.33333Z" stroke="currentColor" stroke-width="1.5"/>
             <path d="M6.66667 6.66667H13.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -25,16 +25,25 @@
           </svg>
           <span>Companies</span>
         </router-link>
-
-        <router-link to="/process-stages" class="nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        
+        <router-link to="/process-stages" class="nav-item active">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="6" cy="6" r="2" stroke="currentColor" stroke-width="1.8"/>
             <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.8"/>
             <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span>Process Stages</span>
+
+            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" 
+            stroke="currentColor" 
+            stroke-width="1.8" 
+            stroke-linecap="round"/>
+
+            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" 
+            stroke="currentColor" 
+            stroke-width="1.8" 
+            stroke-linecap="round"/>
+        </svg>
+
+        <span>Process Stages</span>
         </router-link>
       </nav>
     </aside>
@@ -85,7 +94,7 @@
       <div class="content-wrapper">
         <div class="page-header">
           <div>
-            <h1>Companies</h1>
+            <h1>Process Stages</h1>
             <p>Manage all registered companies</p>
           </div>
           <button class="btn-primary" @click="openAddModal">
@@ -96,118 +105,7 @@
           </button>
         </div>
 
-        <div class="table-controls">
-          <div class="search-wrapper">
-            <div class="search-box-table">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M7.25 12.5C10.1495 12.5 12.5 10.1495 12.5 7.25C12.5 4.35051 10.1495 2 7.25 2C4.35051 2 2 4.35051 2 7.25C2 10.1495 4.35051 12.5 7.25 12.5Z" stroke="currentColor" stroke-width="1.5"/>
-                <path d="M14 14L11 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <input type="text" v-model="searchQuery" placeholder="Search companies..." @input="filterCompanies">
-            </div>
-            <div class="filter-buttons">
-              <button @click="currentFilter = 'all'" :class="['filter-btn', { active: currentFilter === 'all' }]">All</button>
-              <button @click="currentFilter = 'mine'" :class="['filter-btn', { active: currentFilter === 'mine' }]">My Company</button>
-            </div>
-          </div>
-        </div>
-
-        <div v-if="loading" class="loading-state">
-          <div class="spinner"></div>
-          <p>Loading companies...</p>
-        </div>
-
-        <div v-else class="table-container">
-          <table class="companies-table">
-            <thead>
-              <tr>
-                <th>Company Name</th>
-                <th>Owner</th>
-                <th>Phone</th>
-                <th>Address</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="company in filteredCompanies" :key="company.id">
-                <td class="company-name">
-                  <div class="company-avatar">{{ company.company_name?.charAt(0).toUpperCase() || 'C' }}</div>
-                  <span class="name-text">{{ company.company_name }}</span>
-                </td>
-                <td>
-                  <span v-if="company.owner_id === user?.id" class="me-text">Me</span>
-                  <span v-else>{{ company.owner?.username || 'Unknown' }}</span>
-                </td>
-                <td>{{ company.phone || '-' }}</td>
-                <td class="address-cell">{{ company.address || '-' }}</td>
-                <td class="actions">
-                  <button v-if="company.owner_id !== user?.id && company.id !== user?.company_id" class="action-btn use" @click="useCompany(company)" title="Use this company">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M2 8H14M14 8L10 4M14 8L10 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                  </button>
-                  <button class="action-btn view" @click="viewCompany(company)">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M8 3C4 3 2 8 2 8C2 8 4 13 8 13C12 13 14 8 14 8C14 8 12 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
-                      <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/>
-                    </svg>
-                  </button>
-                  <button v-if="company.owner_id === user?.id" class="action-btn edit" @click="editCompany(company)">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M11.3333 1.99996L14 4.66663M2 11.3333L10.6667 2.66663L13.3333 5.33329L4.66667 14H2V11.3333Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                  </button>
-                  <button v-if="company.owner_id === user?.id" class="action-btn delete" @click="deleteCompany(company)">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              <tr v-if="filteredCompanies.length === 0">
-                <td colspan="5" class="empty-state">
-                  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-                    <path d="M24 4L4 12L24 20L44 12L24 4Z" stroke="#d1d5db" stroke-width="1.5"/>
-                    <path d="M4 24L24 32L44 24" stroke="#d1d5db" stroke-width="1.5"/>
-                    <path d="M4 34L24 42L44 34" stroke="#d1d5db" stroke-width="1.5"/>
-                  </svg>
-                  <p>No companies found</p>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div v-if="selectedCompany" class="modal-overlay" @click="closeModal">
-          <div class="modal" @click.stop>
-            <div class="modal-header">
-              <h3>Company Details</h3>
-              <button class="close-btn" @click="closeModal">×</button>
-            </div>
-            <div class="modal-body">
-              <div class="detail-row">
-                <label>Company Name</label>
-                <p>{{ selectedCompany.company_name }}</p>
-              </div>
-              <div class="detail-row">
-                <label>Phone</label>
-                <p>{{ selectedCompany.phone || '-' }}</p>
-              </div>
-              <div class="detail-row">
-                <label>Address</label>
-                <p>{{ selectedCompany.address || '-' }}</p>
-              </div>
-              <div class="detail-row">
-                <label>Owner</label>
-                <p class="owner-name">{{ selectedCompany.owner?.username || 'Unknown' }}</p>
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn-secondary" @click="closeModal">Close</button>
-            </div>
-          </div>
-        </div>
-
+        <!-- Add Company Modal - DIPINDAHKAN KE LUAR -->
         <div v-if="showAddModal" class="modal-overlay" @click="closeAddModal">
           <div class="modal" @click.stop>
             <div class="modal-header">
@@ -218,56 +116,95 @@
               <div class="modal-body">
                 <div class="form-group">
                   <label>Company Name <span>*</span></label>
-                  <input type="text" v-model="newCompany.company_name" class="form-input" required placeholder="Enter company name">
+                  <input 
+                    type="text" 
+                    v-model="newCompany.company_name" 
+                    class="form-input"
+                    required
+                    placeholder="Enter company name"
+                  />
                 </div>
                 <div class="form-group">
                   <label>Phone <span>*</span></label>
-                  <input type="text" v-model="newCompany.phone" class="form-input" placeholder="Enter phone number">
+                  <input 
+                    type="text" 
+                    v-model="newCompany.phone" 
+                    class="form-input"
+                    placeholder="Enter phone number"
+                  />
                 </div>
                 <div class="form-group">
                   <label>Address <span>*</span></label>
-                  <textarea v-model="newCompany.address" class="form-input" rows="3" placeholder="Enter company address"></textarea>
+                  <textarea 
+                    v-model="newCompany.address" 
+                    class="form-input"
+                    rows="3"
+                    placeholder="Enter company address"
+                  ></textarea>
                 </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn-secondary" @click="closeAddModal">Cancel</button>
-                <button type="submit" class="btn-primary" :disabled="adding">{{ adding ? 'Adding...' : 'Add Company' }}</button>
+                <button type="submit" class="btn-primary" :disabled="adding">
+                  {{ adding ? 'Adding...' : 'Add Company' }}
+                </button>
               </div>
             </form>
           </div>
         </div>
 
-        <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
-          <div class="modal" @click.stop>
-            <div class="modal-header">
-              <h3>Edit Company</h3>
-              <button class="close-btn" @click="closeEditModal">×</button>
-            </div>
-            <form @submit.prevent="submitEditCompany">
-              <div class="modal-body">
-                <div class="form-group">
-                  <label>Company Name <span>*</span></label>
-                  <input type="text" v-model="editCompanyData.company_name" class="form-input" required placeholder="Enter company name">
-                </div>
-                <div class="form-group">
-                  <label>Phone</label>
-                  <input type="text" v-model="editCompanyData.phone" class="form-input" placeholder="Enter phone number">
-                </div>
-                <div class="form-group">
-                  <label>Address</label>
-                  <textarea v-model="editCompanyData.address" class="form-input" rows="3" placeholder="Enter company address"></textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn-secondary" @click="closeEditModal">Cancel</button>
-                <button type="submit" class="btn-primary" :disabled="editing">{{ editing ? 'Saving...' : 'Save Changes' }}</button>
-              </div>
-            </form>
-          </div>
+        <!-- Edit Company Modal -->
+<div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
+  <div class="modal" @click.stop>
+    <div class="modal-header">
+      <h3>Edit Company</h3>
+      <button class="close-btn" @click="closeEditModal">×</button>
+    </div>
+    <form @submit.prevent="submitEditCompany">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Company Name <span>*</span></label>
+          <input 
+            type="text" 
+            v-model="editCompanyData.company_name" 
+            class="form-input"
+            required
+            placeholder="Enter company name"
+          />
         </div>
+        <div class="form-group">
+          <label>Phone</label>
+          <input 
+            type="text" 
+            v-model="editCompanyData.phone" 
+            class="form-input"
+            placeholder="Enter phone number"
+          />
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <textarea 
+            v-model="editCompanyData.address" 
+            class="form-input"
+            rows="3"
+            placeholder="Enter company address"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" @click="closeEditModal">Cancel</button>
+        <button type="submit" class="btn-primary" :disabled="editing">
+          {{ editing ? 'Saving...' : 'Save Changes' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
       </div>
     </main>
   </div>
+
+
 </template>
 
 <script setup>
@@ -285,6 +222,7 @@ const selectedCompany = ref(null)
 const isDropdownOpen = ref(false)
 const dropdownRef = ref(null)
 
+// Add Company variables
 const showAddModal = ref(false)
 const adding = ref(false)
 const newCompany = ref({
@@ -320,41 +258,12 @@ const handleClickOutside = (event) => {
 const loadCompanies = async () => {
   loading.value = true
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/companies`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/companies`)
     companies.value = response.data
   } catch (error) {
     console.error('Failed to load companies:', error)
-    if (error.response?.status === 401) {
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
-      router.push('/login')
-    }
   } finally {
     loading.value = false
-  }
-}
-
-const useCompany = async (company) => {
-  if (confirm(`Switch to ${company.company_name}?`)) {
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/companies/switch/${company.id}`, {}, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      })
-      
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.token)
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-        user.value = response.data.user
-        alert(`Now using ${company.company_name}`)
-        loadCompanies()
-      }
-    } catch (error) {
-      console.error('Failed to switch company:', error)
-      alert(error.response?.data?.error || 'Failed to switch company')
-    }
   }
 }
 
@@ -369,8 +278,8 @@ const filteredCompanies = computed(() => {
     )
   }
   
-  if (currentFilter.value === 'mine') {
-    filtered = filtered.filter(company => company.owner_id === user.value?.id)
+  if (currentFilter.value === 'mine' && user.value?.company_id) {
+    filtered = filtered.filter(company => company.id === user.value.company_id)
   }
   
   return filtered
@@ -383,25 +292,12 @@ const viewCompany = (company) => {
 }
 
 const editCompany = (company) => {
-  openEditModal(company)
+  alert(`Edit company: ${company.company_name}`)
 }
 
-const deleteCompany = async (company) => {
-  if (!confirm(`Are you sure you want to delete ${company.company_name}?`)) return
-  
-  try {
-    const token = localStorage.getItem('token')
-    const response = await axios.delete(`${import.meta.env.VITE_API_URL}/api/companies/${company.id}`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    
-    if (response.data.success) {
-      alert('Company deleted successfully!')
-      loadCompanies()
-    }
-  } catch (error) {
-    console.error('Failed to delete company:', error)
-    alert(error.response?.data?.error || 'Failed to delete company')
+const deleteCompany = (company) => {
+  if (confirm(`Are you sure you want to delete ${company.company_name}?`)) {
+    alert(`Delete company: ${company.company_name}`)
   }
 }
 
@@ -409,8 +305,13 @@ const closeModal = () => {
   selectedCompany.value = null
 }
 
+// Add Company functions
 const openAddModal = () => {
-  newCompany.value = { company_name: '', phone: '', address: '' }
+  newCompany.value = {
+    company_name: '',
+    phone: '',
+    address: ''
+  }
   showAddModal.value = true
 }
 
@@ -427,9 +328,10 @@ const submitAddCompany = async () => {
   
   adding.value = true
   try {
-    const token = localStorage.getItem('token')
     const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/companies/add`, newCompany.value, {
-      headers: { Authorization: `Bearer ${token}` }
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`
+      }
     })
     
     if (response.data.success || response.data.id) {
@@ -467,6 +369,7 @@ const editCompanyData = ref({
   address: ''
 })
 
+// Edit Company functions
 const openEditModal = (company) => {
   editCompanyData.value = {
     id: company.id,
@@ -496,19 +399,24 @@ const submitEditCompany = async () => {
   
   editing.value = true
   try {
-    const token = localStorage.getItem('token')
-    const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/companies/${editCompanyData.value.id}`, {
-      company_name: editCompanyData.value.company_name,
-      phone: editCompanyData.value.phone,
-      address: editCompanyData.value.address
-    }, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
+    const response = await axios.put(
+      `${import.meta.env.VITE_API_URL}/api/companies/${editCompanyData.value.id}`, 
+      {
+        company_name: editCompanyData.value.company_name,
+        phone: editCompanyData.value.phone,
+        address: editCompanyData.value.address
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
     
     if (response.data.success) {
       alert('Company updated successfully!')
       closeEditModal()
-      loadCompanies()
+      loadCompanies() // Refresh the list
     }
   } catch (error) {
     console.error('Failed to update company:', error)
@@ -526,6 +434,7 @@ const submitEditCompany = async () => {
   box-sizing: border-box;
 }
 
+/* Form styles untuk modal */
 .form-group {
   margin-bottom: 20px;
 }
@@ -570,6 +479,7 @@ textarea.form-input {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Sidebar */
 .sidebar {
   width: 280px;
   background: white;
@@ -580,11 +490,6 @@ textarea.form-input {
   height: 100vh;
   left: 0;
   top: 0;
-}
-
-.action-btn.use:hover {
-  background: #dcfce7;
-  color: #10b981;
 }
 
 .sidebar-header {
@@ -652,19 +557,12 @@ textarea.form-input {
   color: white;
 }
 
+/* Main Content */
 .main-content {
   flex: 1;
   margin-left: 280px;
   min-height: 100vh;
   background: #f8f9fa;
-}
-
-.owner-name {
-  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 600;
 }
 
 .top-bar {
@@ -683,6 +581,7 @@ textarea.form-input {
   padding: 32px;
 }
 
+/* User Dropdown */
 .user-dropdown {
   position: relative;
   cursor: pointer;
@@ -735,6 +634,7 @@ textarea.form-input {
   transition: transform 0.2s ease;
 }
 
+/* Dropdown Menu */
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -777,6 +677,7 @@ textarea.form-input {
   margin: 4px 0;
 }
 
+/* Dropdown Animation */
 .dropdown-enter-active,
 .dropdown-leave-active {
   transition: all 0.2s ease;
@@ -788,6 +689,7 @@ textarea.form-input {
   transform: translateY(-10px);
 }
 
+/* Page Header */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -837,6 +739,7 @@ textarea.form-input {
   transform: none;
 }
 
+/* Table Controls */
 .table-controls {
   margin-bottom: 24px;
 }
@@ -901,6 +804,7 @@ textarea.form-input {
   border-color: transparent;
 }
 
+/* Table */
 .table-container {
   background: white;
   border: 1px solid #e9ecef;
@@ -959,6 +863,16 @@ textarea.form-input {
 
 .name-text {
   font-weight: 500;
+}
+
+.badge {
+  padding: 4px 8px;
+  background: #e9d5ff;
+  color: #6B21A5;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 8px;
 }
 
 .address-cell {
@@ -1038,6 +952,7 @@ textarea.form-input {
   to { transform: rotate(360deg); }
 }
 
+/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;

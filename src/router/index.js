@@ -3,6 +3,7 @@ import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Companies from '../views/Companies.vue'
+import ProcessStages from '../views/ProcessStages.vue'
 
 const routes = [
   {
@@ -29,6 +30,12 @@ const routes = [
     path: '/companies',
     name: 'Companies',
     component: Companies,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/process-stages', 
+    name: 'ProcessStages',
+    component: ProcessStages,
     meta: { requiresAuth: true }
   }
 ]

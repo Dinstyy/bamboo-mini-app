@@ -77,7 +77,7 @@
               />
             </div>
             <div class="form-group">
-              <label>Address</label>
+              <label>Address<span class="required">*</span></label>
               <textarea 
                 v-model="form.companyAddress" 
                 class="form-control"
@@ -86,7 +86,7 @@
               ></textarea>
             </div>
             <div class="form-group">
-              <label>Phone</label>
+              <label>Phone<span class="required">*</span></label>
               <input 
                 type="text" 
                 v-model="form.companyPhone" 

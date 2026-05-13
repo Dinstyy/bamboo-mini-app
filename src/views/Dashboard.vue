@@ -25,6 +25,26 @@
           </svg>
           <span>Companies</span>
         </router-link>
+
+        <router-link to="/process-stages" class="nav-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <circle cx="6" cy="6" r="2" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.8"/>
+            <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
+
+            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" 
+            stroke="currentColor" 
+            stroke-width="1.8" 
+            stroke-linecap="round"/>
+
+            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" 
+            stroke="currentColor" 
+            stroke-width="1.8" 
+            stroke-linecap="round"/>
+        </svg>
+
+        <span>Process Stages</span>
+        </router-link>
       </nav>
     </aside>
 
