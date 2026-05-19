@@ -1,5 +1,5 @@
 <template>
-  <div class="companies-page">
+  <div class="process-stages-page">
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
@@ -15,7 +15,7 @@
           </svg>
           <span>Dashboard</span>
         </router-link>
-
+        
         <router-link to="/companies" class="nav-item">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M3.33333 3.33333H16.6667V16.6667H3.33333V3.33333Z" stroke="currentColor" stroke-width="1.5"/>
@@ -25,25 +25,16 @@
           </svg>
           <span>Companies</span>
         </router-link>
-        
+
         <router-link to="/process-stages" class="nav-item active">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <circle cx="6" cy="6" r="2" stroke="currentColor" stroke-width="1.8"/>
             <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.8"/>
             <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
-
-            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" 
-            stroke="currentColor" 
-            stroke-width="1.8" 
-            stroke-linecap="round"/>
-
-            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" 
-            stroke="currentColor" 
-            stroke-width="1.8" 
-            stroke-linecap="round"/>
-        </svg>
-
-        <span>Process Stages</span>
+            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+          </svg>
+          <span>Process Stages</span>
         </router-link>
       </nav>
     </aside>
@@ -52,9 +43,7 @@
       <header class="top-bar">
         <div class="user-dropdown" @click="toggleDropdown" ref="dropdownRef">
           <div class="user-info">
-            <div class="user-avatar">
-              {{ user?.username?.charAt(0).toUpperCase() || 'U' }}
-            </div>
+            <div class="user-avatar">{{ user?.username?.charAt(0).toUpperCase() || 'U' }}</div>
             <div class="user-details">
               <p class="user-name">{{ user?.username }}</p>
               <p class="user-email">{{ user?.email }}</p>
@@ -66,20 +55,6 @@
           
           <transition name="dropdown">
             <div v-if="isDropdownOpen" class="dropdown-menu">
-              <div class="dropdown-item" @click="goToProfile">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M13 14V12.5C13 11.5717 12.6313 10.6815 11.9749 10.0251C11.3185 9.36875 10.4283 9 9.5 9H6.5C5.57174 9 4.6815 9.36875 4.02513 10.0251C3.36875 10.6815 3 11.5717 3 12.5V14M8 7C9.65685 7 11 5.65685 11 4C11 2.34315 9.65685 1 8 1C6.34315 1 5 2.34315 5 4C5 5.65685 6.34315 7 8 7Z" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <span>Profile</span>
-              </div>
-              <div class="dropdown-item" @click="goToSettings">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6.66667 1.66667L4.66667 3.66667H2V6.33333L4 8.33333L2 10.3333V13H4.66667L6.66667 15L8.66667 13H11.3333V10.3333L13.3333 8.33333L11.3333 6.33333V3.66667H8.66667L6.66667 1.66667Z" stroke="currentColor" stroke-width="1.5"/>
-                  <circle cx="8" cy="8.33333" r="2" stroke="currentColor" stroke-width="1.5"/>
-                </svg>
-                <span>Settings</span>
-              </div>
-              <div class="dropdown-divider"></div>
               <div class="dropdown-item logout" @click="logout">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path d="M6 14H3.5C2.67157 14 2 13.3284 2 12.5V3.5C2 2.67157 2.67157 2 3.5 2H6M11 11L14 8L11 5M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -95,116 +70,255 @@
         <div class="page-header">
           <div>
             <h1>Process Stages</h1>
-            <p>Manage all registered companies</p>
+            <p>Pull process stages data by date range</p>
           </div>
-          <button class="btn-primary" @click="openAddModal">
+          <button class="btn-primary" @click="openFetchModal">
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            Add Company
+            Pull Data
           </button>
         </div>
 
-        <!-- Add Company Modal - DIPINDAHKAN KE LUAR -->
-        <div v-if="showAddModal" class="modal-overlay" @click="closeAddModal">
-          <div class="modal" @click.stop>
-            <div class="modal-header">
-              <h3>Add New Company</h3>
-              <button class="close-btn" @click="closeAddModal">×</button>
-            </div>
-            <form @submit.prevent="submitAddCompany">
-              <div class="modal-body">
-                <div class="form-group">
-                  <label>Company Name <span>*</span></label>
-                  <input 
-                    type="text" 
-                    v-model="newCompany.company_name" 
-                    class="form-input"
-                    required
-                    placeholder="Enter company name"
-                  />
+        <div class="groups-section">
+          <div class="section-header">
+            <h2>Pull History</h2>
+            <button class="btn-refresh" @click="loadGroups" :disabled="loadingGroups">
+              <svg width="15" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M13.5 2.5V6H9.5M13 8C12.5 11.5 9.5 14 6 14C2.5 14 0 11.5 0 8C0 4.5 2.5 2 6 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              Refresh
+            </button>
+          </div>
+
+          <div v-if="loadingGroups" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading groups...</p>
+          </div>
+
+          <div v-else-if="groups.length === 0" class="empty-state">
+            <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <path d="M24 4L4 12L24 20L44 12L24 4Z" stroke="#d1d5db" stroke-width="1.5"/>
+              <path d="M4 24L24 32L44 24" stroke="#d1d5db" stroke-width="1.5"/>
+              <path d="M4 34L24 42L44 34" stroke="#d1d5db" stroke-width="1.5"/>
+            </svg>
+            <p>No pull history found</p>
+          </div>
+
+          <div v-else class="groups-grid">
+            <div v-for="group in groups" :key="group.id" class="group-card" @click="viewGroupDetail(group)">
+              <div class="card-header">
+                <div class="card-title">
+                  <span class="group-id">#{{ group.id }}</span>
+                  <span :class="['status-badge', getStatusClass(group.status)]">
+                    {{ group.status }}
+                  </span>
                 </div>
-                <div class="form-group">
-                  <label>Phone <span>*</span></label>
-                  <input 
-                    type="text" 
-                    v-model="newCompany.phone" 
-                    class="form-input"
-                    placeholder="Enter phone number"
-                  />
-                </div>
-                <div class="form-group">
-                  <label>Address <span>*</span></label>
-                  <textarea 
-                    v-model="newCompany.address" 
-                    class="form-input"
-                    rows="3"
-                    placeholder="Enter company address"
-                  ></textarea>
-                </div>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn-secondary" @click="closeAddModal">Cancel</button>
-                <button type="submit" class="btn-primary" :disabled="adding">
-                  {{ adding ? 'Adding...' : 'Add Company' }}
+                <button class="card-delete" @click.stop="deleteGroup(group)">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
                 </button>
               </div>
-            </form>
+              <div class="card-body">
+                <div class="date-range">
+                  <span class="label">Period:</span>
+                  <span>{{ formatDate(group.tanggal_mulai) }} - {{ formatDate(group.tanggal_akhir) }}</span>
+                </div>
+                <div class="total-data">
+                  <span class="label">Total Data:</span>
+                  <span class="total-count">{{ group.total_data }} items</span>
+                </div>
+                <div class="created-at">
+                  <span class="label">Created:</span>
+                  <span>{{ formatDateTime(group.createdAt) }}</span>
+                </div>
+                <div v-if="group.error_message" class="error-message">
+                  <span class="label">Error:</span>
+                  <span>{{ group.error_message }}</span>
+                </div>
+              </div>
+              <div class="card-footer">
+                <span class="view-detail">Click to view details →</span>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="pagination.totalPages > 1" class="pagination">
+            <button @click="changePage(pagination.page - 1)" :disabled="pagination.page === 1">
+              Previous
+            </button>
+            <span class="page-info">Page {{ pagination.page }} of {{ pagination.totalPages }}</span>
+            <button @click="changePage(pagination.page + 1)" :disabled="pagination.page === pagination.totalPages">
+              Next
+            </button>
           </div>
         </div>
-
-        <!-- Edit Company Modal -->
-<div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
-  <div class="modal" @click.stop>
-    <div class="modal-header">
-      <h3>Edit Company</h3>
-      <button class="close-btn" @click="closeEditModal">×</button>
-    </div>
-    <form @submit.prevent="submitEditCompany">
-      <div class="modal-body">
-        <div class="form-group">
-          <label>Company Name <span>*</span></label>
-          <input 
-            type="text" 
-            v-model="editCompanyData.company_name" 
-            class="form-input"
-            required
-            placeholder="Enter company name"
-          />
-        </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input 
-            type="text" 
-            v-model="editCompanyData.phone" 
-            class="form-input"
-            placeholder="Enter phone number"
-          />
-        </div>
-        <div class="form-group">
-          <label>Address</label>
-          <textarea 
-            v-model="editCompanyData.address" 
-            class="form-input"
-            rows="3"
-            placeholder="Enter company address"
-          ></textarea>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-secondary" @click="closeEditModal">Cancel</button>
-        <button type="submit" class="btn-primary" :disabled="editing">
-          {{ editing ? 'Saving...' : 'Save Changes' }}
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
       </div>
     </main>
+
+    <div v-if="showFetchModal" class="modal-overlay" @click="closeFetchModal">
+      <div class="modal" @click.stop>
+        <div class="modal-header">
+          <h3>Pull Process Stages Data</h3>
+          <button class="close-btn" @click="closeFetchModal">×</button>
+        </div>
+        <form @submit.prevent="submitFetchData">
+          <div class="modal-body">
+            <div class="form-group">
+              <label>Tanggal Mulai <span class="required">*</span></label>
+              <input 
+                type="date" 
+                v-model="fetchForm.tanggal_mulai" 
+                class="form-input"
+                :max="fetchForm.tanggal_akhir"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Tanggal Akhir <span class="required">*</span></label>
+              <input 
+                type="date" 
+                v-model="fetchForm.tanggal_akhir" 
+                class="form-input"
+                :min="fetchForm.tanggal_mulai"
+                required
+              />
+            </div>
+            <div class="info-note">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <circle cx="8" cy="8" r="6" stroke="#8B5CF6" stroke-width="1.5"/>
+                <path d="M8 4V8L10 10" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <span>Data akan ditarik secara background. Anda akan mendapatkan notifikasi saat selesai.</span>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" @click="closeFetchModal">Cancel</button>
+            <button type="submit" class="btn-primary" :disabled="fetching">
+              {{ fetching ? 'Processing...' : 'Start Pull' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div v-if="selectedGroup" class="modal-overlay modal-large" @click="closeDetailModal">
+      <div class="modal modal-large" @click.stop>
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <h3 style="margin: 0;">Group Detail #{{ selectedGroup.id }}</h3>
+          <span :class="['status-badge', getStatusClass(selectedGroup.status)]">
+            {{ selectedGroup.status }}
+          </span>
+        </div>
+        <button class="close-btn" @click="closeDetailModal">×</button>
+      </div>
+        <div class="modal-body">
+          <div class="detail-summary">
+            <div class="summary-item">
+              <span class="label">Period:</span>
+              <span>{{ formatDate(selectedGroup.tanggal_mulai) }} - {{ formatDate(selectedGroup.tanggal_akhir) }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Total Data:</span>
+              <span>{{ selectedGroup.total_data }} items</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">Created:</span>
+              <span>{{ formatDateTime(selectedGroup.createdAt) }}</span>
+            </div>
+          </div>
+
+          <div class="transactions-table-wrapper">
+            <div class="table-header">
+              <h4>Transactions</h4>
+              <div class="search-box">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M6.5 11C9.53757 11 12 8.53757 12 5.5C12 2.46243 9.53757 0 6.5 0C3.46243 0 1 2.46243 1 5.5C1 8.53757 3.46243 11 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
+                  <path d="M12.5 12.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                <input type="text" v-model="searchDetail" placeholder="Search transactions...">
+              </div>
+            </div>
+            
+            <div v-if="loadingDetail" class="loading-state small">
+              <div class="spinner small"></div>
+              <p>Loading transactions...</p>
+            </div>
+            
+            <div v-else-if="filteredDetails.length === 0" class="empty-state small">
+              <p>No transactions found</p>
+            </div>
+            
+            <div v-else class="table-container">
+              <table class="transactions-table">
+                <thead>
+                  <tr>
+                    <th>Number</th>
+                    <th>Work Order</th>
+                    <th>Date</th>
+                    <th>Item No</th>
+                    <th>Item Name</th>
+                    <th>Quantity</th>
+                    <th>Export Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="detail in filteredDetails" :key="detail.id">
+                    <td>{{ detail.number || '-' }}</td>
+                    <td>{{ detail.workOrderNumber || '-' }}</td>
+                    <td>{{ formatDate(detail.transDate) }}</td>
+                    <td>{{ detail.itemNo || '-' }}</td>
+                    <td class="item-name">{{ detail.itemName || '-' }}</td>
+                    <td class="item-qty">{{ formatNumber(detail.quantity) }}</td>
+
+                        <td class="export-status">
+                          <span :class="['export-badge', getExportStatusClass(detail.export_status)]">
+                            {{ detail.export_status || 'PENDING' }}
+                          </span>
+                          <div v-if="detail.export_error_message" class="export-error-tooltip">
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                              <circle cx="7" cy="7" r="6" stroke="#dc3545" stroke-width="1.2"/>
+                              <path d="M7 4V7M7 10H7.01" stroke="#dc3545" stroke-width="1.2" stroke-linecap="round"/>
+                            </svg>
+                            <span class="tooltip-text">{{ detail.export_error_message }}</span>
+                          </div>
+                        </td>
+
+                    <td class="actions">
+                      <button 
+                        v-if="detail.export_status !== 'SUCCESS'"
+                        class="action-btn export" 
+                        @click="exportTransaction(detail)"
+                        :disabled="exportingId === detail.id"
+                        title="Export to Accurate"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 1V11M8 11L11 8M8 11L5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                          <path d="M2 13H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                      
+                      <button class="action-btn delete" @click="deleteTransaction(detail)">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                        </svg>
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeDetailModal">Close</button>
+        </div>
+      </div>
+    </div>
   </div>
-
-
 </template>
 
 <script setup>
@@ -212,37 +326,36 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 
+const exportingId = ref(null)
 const router = useRouter()
 const user = ref(null)
-const companies = ref([])
-const loading = ref(true)
-const searchQuery = ref('')
-const currentFilter = ref('all')
-const selectedCompany = ref(null)
 const isDropdownOpen = ref(false)
 const dropdownRef = ref(null)
 
-// Add Company variables
-const showAddModal = ref(false)
-const adding = ref(false)
-const newCompany = ref({
-  company_name: '',
-  phone: '',
-  address: ''
+const groups = ref([])
+const loadingGroups = ref(false)
+const pagination = ref({
+  page: 1,
+  pageSize: 10,
+  total: 0,
+  totalPages: 0
 })
+
+const showFetchModal = ref(false)
+const fetching = ref(false)
+const fetchForm = ref({
+  tanggal_mulai: '',
+  tanggal_akhir: ''
+})
+
+const selectedGroup = ref(null)
+const loadingDetail = ref(false)
+const searchDetail = ref('')
 
 const logout = () => {
   localStorage.removeItem('token')
   localStorage.removeItem('user')
   router.push('/login')
-}
-
-const goToProfile = () => {
-  isDropdownOpen.value = false
-}
-
-const goToSettings = () => {
-  isDropdownOpen.value = false
 }
 
 const toggleDropdown = () => {
@@ -255,157 +368,85 @@ const handleClickOutside = (event) => {
   }
 }
 
-const loadCompanies = async () => {
-  loading.value = true
+const formatDate = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleDateString('id-ID')
+}
+
+const formatDateTime = (date) => {
+  if (!date) return '-'
+  return new Date(date).toLocaleString('id-ID')
+}
+
+const formatNumber = (num) => {
+  if (!num) return '0'
+  return new Intl.NumberFormat('id-ID').format(num)
+}
+
+const getStatusClass = (status) => {
+  const classes = {
+    'PENDING': 'status-pending',
+    'IN_PROGRESS': 'status-progress',
+    'COMPLETED': 'status-completed',
+    'FAILED': 'status-failed'
+  }
+  return classes[status] || 'status-pending'
+}
+
+const loadGroups = async () => {
+  loadingGroups.value = true
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/companies`)
-    companies.value = response.data
-  } catch (error) {
-    console.error('Failed to load companies:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
-const filteredCompanies = computed(() => {
-  let filtered = companies.value
-  
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(company => 
-      company.company_name?.toLowerCase().includes(query) ||
-      company.phone?.includes(query)
-    )
-  }
-  
-  if (currentFilter.value === 'mine' && user.value?.company_id) {
-    filtered = filtered.filter(company => company.id === user.value.company_id)
-  }
-  
-  return filtered
-})
-
-const filterCompanies = () => {}
-
-const viewCompany = (company) => {
-  selectedCompany.value = company
-}
-
-const editCompany = (company) => {
-  alert(`Edit company: ${company.company_name}`)
-}
-
-const deleteCompany = (company) => {
-  if (confirm(`Are you sure you want to delete ${company.company_name}?`)) {
-    alert(`Delete company: ${company.company_name}`)
-  }
-}
-
-const closeModal = () => {
-  selectedCompany.value = null
-}
-
-// Add Company functions
-const openAddModal = () => {
-  newCompany.value = {
-    company_name: '',
-    phone: '',
-    address: ''
-  }
-  showAddModal.value = true
-}
-
-const closeAddModal = () => {
-  showAddModal.value = false
-  adding.value = false
-}
-
-const submitAddCompany = async () => {
-  if (!newCompany.value.company_name) {
-    alert('Company name is required')
-    return
-  }
-  
-  adding.value = true
-  try {
-    const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/companies/add`, newCompany.value, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/process-stages/groups`, {
+      params: {
+        page: pagination.value.page,
+        pageSize: pagination.value.pageSize
+      },
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
       }
     })
     
-    if (response.data.success || response.data.id) {
-      alert('Company added successfully!')
-      closeAddModal()
-      loadCompanies()
-    }
+    groups.value = response.data.data
+    pagination.value = response.data.pagination
   } catch (error) {
-    console.error('Failed to add company:', error)
-    alert(error.response?.data?.error || 'Failed to add company')
+    console.error('Failed to load groups:', error)
+    if (error.response?.status === 401) {
+      logout()
+    }
   } finally {
-    adding.value = false
+    loadingGroups.value = false
   }
 }
 
-onMounted(() => {
-  const userData = localStorage.getItem('user')
-  if (userData) {
-    user.value = JSON.parse(userData)
-  }
-  loadCompanies()
-  document.addEventListener('click', handleClickOutside)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
-
-const showEditModal = ref(false)
-const editing = ref(false)
-const editCompanyData = ref({
-  id: null,
-  company_name: '',
-  phone: '',
-  address: ''
-})
-
-// Edit Company functions
-const openEditModal = (company) => {
-  editCompanyData.value = {
-    id: company.id,
-    company_name: company.company_name,
-    phone: company.phone || '',
-    address: company.address || ''
-  }
-  showEditModal.value = true
+const changePage = (newPage) => {
+  pagination.value.page = newPage
+  loadGroups()
 }
 
-const closeEditModal = () => {
-  showEditModal.value = false
-  editing.value = false
-  editCompanyData.value = {
-    id: null,
-    company_name: '',
-    phone: '',
-    address: ''
+const openFetchModal = () => {
+  fetchForm.value = {
+    tanggal_mulai: '',
+    tanggal_akhir: ''
   }
+  showFetchModal.value = true
 }
 
-const submitEditCompany = async () => {
-  if (!editCompanyData.value.company_name) {
-    alert('Company name is required')
+const closeFetchModal = () => {
+  showFetchModal.value = false
+  fetching.value = false
+}
+
+const submitFetchData = async () => {
+  if (!fetchForm.value.tanggal_mulai || !fetchForm.value.tanggal_akhir) {
+    alert('Tanggal mulai dan tanggal akhir wajib diisi')
     return
   }
   
-  editing.value = true
+  fetching.value = true
   try {
-    const response = await axios.put(
-      `${import.meta.env.VITE_API_URL}/api/companies/${editCompanyData.value.id}`, 
-      {
-        company_name: editCompanyData.value.company_name,
-        phone: editCompanyData.value.phone,
-        address: editCompanyData.value.address
-      },
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/process-stages/fetch`,
+      fetchForm.value,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -414,15 +455,167 @@ const submitEditCompany = async () => {
     )
     
     if (response.data.success) {
-      alert('Company updated successfully!')
-      closeEditModal()
-      loadCompanies() // Refresh the list
+      alert('Proses penarikan data dimulai! Silahkan refresh halaman untuk melihat progress.')
+      closeFetchModal()
+      loadGroups()
+      
+      let attempts = 0
+      const interval = setInterval(() => {
+        if (attempts < 12) {
+          loadGroups()
+          attempts++
+        } else {
+          clearInterval(interval)
+        }
+      }, 5000)
     }
   } catch (error) {
-    console.error('Failed to update company:', error)
-    alert(error.response?.data?.error || 'Failed to update company')
+    console.error('Failed to fetch data:', error)
+    alert(error.response?.data?.error || 'Gagal memulai proses penarikan data')
   } finally {
-    editing.value = false
+    fetching.value = false
+  }
+}
+
+const viewGroupDetail = (group) => {
+  router.push(`/process-stages/group/${group.id}`)
+}
+
+
+const closeDetailModal = () => {
+  selectedGroup.value = null
+  searchDetail.value = ''
+}
+
+const filteredDetails = computed(() => {
+  if (!selectedGroup.value?.details) return []
+  if (!searchDetail.value) return selectedGroup.value.details
+  
+  const query = searchDetail.value.toLowerCase()
+  return selectedGroup.value.details.filter(detail => 
+    (detail.number && detail.number.toLowerCase().includes(query)) ||
+    (detail.workOrderNumber && detail.workOrderNumber.toLowerCase().includes(query)) ||
+    (detail.itemName && detail.itemName.toLowerCase().includes(query)) ||
+    (detail.itemNo && detail.itemNo.toLowerCase().includes(query))
+  )
+})
+
+const deleteTransaction = async (detail) => {
+  if (!confirm(`Hapus transaksi ${detail.number || 'ini'}?`)) return
+  
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/process-stages/details/${detail.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
+    
+    if (response.data.success) {
+      alert('Transaksi berhasil dihapus')
+      if (selectedGroup.value) {
+        await viewGroupDetail(selectedGroup.value)
+      }
+      loadGroups() 
+    }
+  } catch (error) {
+    console.error('Failed to delete transaction:', error)
+    alert('Gagal menghapus transaksi')
+  }
+}
+
+const deleteGroup = async (group) => {
+  if (!confirm(`Hapus group #${group.id} beserta semua transaksinya?`)) return
+  
+  try {
+    const response = await axios.delete(
+      `${import.meta.env.VITE_API_URL}/api/process-stages/groups/${group.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
+    
+    if (response.data.success) {
+      alert('Group berhasil dihapus')
+      loadGroups()
+    }
+  } catch (error) {
+    console.error('Failed to delete group:', error)
+    alert('Gagal menghapus group')
+  }
+}
+
+onMounted(() => {
+  const userData = localStorage.getItem('user')
+  if (userData) {
+    user.value = JSON.parse(userData)
+  }
+  loadGroups()
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
+const getExportStatusClass = (status) => {
+  const classes = {
+    'PENDING': 'status-pending',
+    'IN_PROGRESS': 'status-progress',
+    'SUCCESS': 'status-success',
+    'FAILED': 'status-failed'
+  }
+  return classes[status] || 'status-pending'
+}
+
+const exportTransaction = async (detail) => {
+  if (!confirm(`Export transaction ${detail.number || detail.id} to Accurate?`)) return
+  
+  exportingId.value = detail.id
+  
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_API_URL}/api/process-stages/export/${detail.id}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      }
+    )
+    
+    if (response.data.success) {
+      alert('Export successful! Transaction created in Accurate.')
+      if (selectedGroup.value) {
+        await viewGroupDetail(selectedGroup.value)
+      }
+    }
+  } catch (error) {
+    console.error('Failed to export:', error)
+    const errorMsg = error.response?.data?.error || 'Failed to export transaction'
+    alert(`Export failed: ${errorMsg}`)
+    if (selectedGroup.value) {
+      await viewGroupDetail(selectedGroup.value)
+    }
+  } finally {
+    exportingId.value = null
+  }
+}
+
+const viewExportDetail = (detail) => {
+  if (detail.export_response) {
+    try {
+      const response = JSON.parse(detail.export_response)
+      alert(`Export Success!\nAccurate Response: ${JSON.stringify(response, null, 2)}`)
+    } catch (e) {
+      alert(`Export Success!\nTransaction exported to Accurate`)
+    }
+  } else {
+    alert(`Export successful! Transaction has been created in Accurate.`)
   }
 }
 </script>
@@ -434,44 +627,80 @@ const submitEditCompany = async () => {
   box-sizing: border-box;
 }
 
-/* Form styles untuk modal */
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 13px;
+.export-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
   font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 8px;
+  display: inline-block;
 }
 
-.form-group label span {
-  color: #dc3545;
+.status-success {
+  background: #dcfce7;
+  color: #16a34a;
 }
 
-.form-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  font-size: 14px;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  transition: all 0.2s ease;
+.export-status {
+  position: relative;
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: #8B5CF6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+.export-error-tooltip {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  cursor: help;
+  position: relative;
 }
 
-textarea.form-input {
-  resize: vertical;
+.export-error-tooltip .tooltip-text {
+  visibility: hidden;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 8px 12px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: normal;
 }
 
-.companies-page {
+.export-error-tooltip:hover .tooltip-text {
+  visibility: visible;
+}
+
+.action-btn.export {
+  color: #8B5CF6;
+}
+
+.action-btn.export:hover {
+  background: #f3e8ff;
+  color: #6B21A5;
+}
+
+.action-btn.view-export {
+  color: #10b981;
+}
+
+.action-btn.view-export:hover {
+  background: #dcfce7;
+  color: #059669;
+}
+
+.small-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e9ecef;
+  border-top-color: #8B5CF6;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+.process-stages-page {
   display: flex;
   min-height: 100vh;
   width: 100%;
@@ -479,7 +708,6 @@ textarea.form-input {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Sidebar */
 .sidebar {
   width: 280px;
   background: white;
@@ -514,6 +742,14 @@ textarea.form-input {
   color: white;
   font-weight: 700;
   font-size: 18px;
+}
+
+.summary-item span:not(.label) {
+  font-weight: 600;
+  font-size: 15px;
+  color: #8B5CF6;
+  border-radius: 8px;
+  display: inline-block;
 }
 
 .logo-text {
@@ -553,11 +789,6 @@ textarea.form-input {
   color: white;
 }
 
-.nav-item.active svg {
-  color: white;
-}
-
-/* Main Content */
 .main-content {
   flex: 1;
   margin-left: 280px;
@@ -581,7 +812,6 @@ textarea.form-input {
   padding: 32px;
 }
 
-/* User Dropdown */
 .user-dropdown {
   position: relative;
   cursor: pointer;
@@ -629,12 +859,6 @@ textarea.form-input {
   color: #6c757d;
 }
 
-.dropdown-arrow {
-  color: #6c757d;
-  transition: transform 0.2s ease;
-}
-
-/* Dropdown Menu */
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -671,13 +895,6 @@ textarea.form-input {
   background: #fee;
 }
 
-.dropdown-divider {
-  height: 1px;
-  background: #e9ecef;
-  margin: 4px 0;
-}
-
-/* Dropdown Animation */
 .dropdown-enter-active,
 .dropdown-leave-active {
   transition: all 0.2s ease;
@@ -689,7 +906,6 @@ textarea.form-input {
   transform: translateY(-10px);
 }
 
-/* Page Header */
 .page-header {
   display: flex;
   justify-content: space-between;
@@ -739,203 +955,215 @@ textarea.form-input {
   transform: none;
 }
 
-/* Table Controls */
-.table-controls {
-  margin-bottom: 24px;
+.btn-primary.small {
+  padding: 8px 16px;
+  font-size: 13px;
 }
 
-.search-wrapper {
+.groups-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid #e9ecef;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.btn-refresh {
   display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  color: #6c757d;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.search-box-table {
+.btn-refresh:hover {
+  background: #e9ecef;
+  color: #8B5CF6;
+}
+
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.group-card {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.group-card:hover {
+  border-color: #8B5CF6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.card-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  padding: 10px 16px;
-  flex: 1;
-  max-width: 320px;
 }
 
-.search-box-table svg {
-  color: #adb5bd;
-}
-
-.search-box-table input {
-  border: none;
-  outline: none;
-  font-size: 14px;
-  flex: 1;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: transparent;
-}
-
-.filter-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.filter-btn {
-  padding: 8px 16px;
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 8px;
-  color: #6c757d;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.filter-btn:hover {
-  background: #f8f9fa;
-}
-
-.filter-btn.active {
-  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
-  color: white;
-  border-color: transparent;
-}
-
-/* Table */
-.table-container {
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 16px;
-  overflow-x: auto;
-}
-
-.companies-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.companies-table thead tr {
-  border-bottom: 1px solid #e9ecef;
-}
-
-.companies-table th {
-  text-align: left;
-  padding: 16px 20px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #6c757d;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.companies-table td {
-  padding: 16px 20px;
-  font-size: 14px;
+.group-id {
+  font-weight: 700;
   color: #1a1a1a;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.companies-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.company-name {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.company-avatar {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #8B5CF6;
-  font-weight: 600;
   font-size: 14px;
 }
 
-.name-text {
-  font-weight: 500;
-}
-
-.badge {
+.status-badge {
   padding: 4px 8px;
-  background: #e9d5ff;
-  color: #6B21A5;
   border-radius: 6px;
   font-size: 11px;
   font-weight: 600;
-  margin-left: 8px;
 }
 
-.address-cell {
-  max-width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.status-pending {
+  background: #fef3c7;
+  color: #d97706;
 }
 
-.actions {
-  display: flex;
-  gap: 8px;
-}
-
-.action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  background: transparent;
-}
-
-.action-btn.view:hover {
-  background: #e9d5ff;
-  color: #8B5CF6;
-}
-
-.action-btn.edit:hover {
+.status-progress {
   background: #dbeafe;
-  color: #3b82f6;
+  color: #2563eb;
 }
 
-.action-btn.delete:hover {
+.status-completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-failed {
   background: #fee;
   color: #dc3545;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 60px !important;
+.card-delete {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
   color: #adb5bd;
 }
 
-.empty-state svg {
-  margin-bottom: 16px;
+.card-delete:hover {
+  background: #fee;
+  color: #dc3545;
 }
 
-.empty-state p {
-  margin: 0;
-  font-size: 14px;
+.card-body {
+  margin-bottom: 12px;
+}
+
+.card-body .label {
+  font-size: 11px;
+  color: #6c757d;
+  display: inline-block;
+  width: 70px;
+}
+
+.date-range, .total-data, .created-at {
+  font-size: 13px;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.total-count {
+  font-weight: 600;
+  color: #8B5CF6;
+}
+
+.error-message {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid #fee;
+  color: #dc3545;
+  font-size: 12px;
+}
+
+.card-footer {
+  text-align: right;
+}
+
+.view-detail {
+  font-size: 12px;
+  color: #8B5CF6;
+  font-weight: 500;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e9ecef;
+}
+
+.pagination button {
+  padding: 6px 12px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 13px;
+  color: #6c757d;
 }
 
 .loading-state {
   text-align: center;
   padding: 60px;
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 16px;
+}
+
+.loading-state.small {
+  padding: 20px;
 }
 
 .spinner {
@@ -948,11 +1176,29 @@ textarea.form-input {
   margin: 0 auto 16px;
 }
 
+.spinner.small {
+  width: 20px;
+  height: 20px;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: #adb5bd;
+}
+
+.empty-state.small {
+  padding: 20px;
+}
+
+.empty-state svg {
+  margin-bottom: 16px;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-/* Modal */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -966,6 +1212,12 @@ textarea.form-input {
   z-index: 1000;
 }
 
+.modal-overlay.modal-large {
+  align-items: flex-start;
+  padding: 40px;
+  overflow-y: auto;
+}
+
 .modal {
   background: white;
   border-radius: 16px;
@@ -973,6 +1225,11 @@ textarea.form-input {
   max-width: 500px;
   max-height: 85vh;
   overflow-y: auto;
+}
+
+.modal.modal-large {
+  max-width: 900px;
+  width: 90%;
 }
 
 .modal-header {
@@ -998,33 +1255,8 @@ textarea.form-input {
   color: #6c757d;
 }
 
-.close-btn:hover {
-  color: #1a1a1a;
-}
-
 .modal-body {
   padding: 24px;
-}
-
-.detail-row {
-  margin-bottom: 16px;
-}
-
-.detail-row label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: #6c757d;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-
-.detail-row p {
-  font-size: 15px;
-  color: #1a1a1a;
-  margin: 0;
-  font-weight: 500;
 }
 
 .modal-footer {
@@ -1052,6 +1284,161 @@ textarea.form-input {
   background: #e9ecef;
 }
 
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.form-group .required {
+  color: #dc3545;
+}
+
+.form-input {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+.info-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: #f3e8ff;
+  border-radius: 10px;
+  font-size: 12px;
+  color: #6B21A5;
+  margin-top: 16px;
+}
+
+.detail-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-item .label {
+  font-size: 10px;
+  font-weight: 500;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.transactions-table-wrapper {
+  margin-top: 20px;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.table-header h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.search-box input {
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: transparent;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transactions-table th {
+  text-align: left;
+  padding: 12px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #6c757d;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.transactions-table td {
+  padding: 12px 12px;
+  font-size: 13px;
+  color: #1a1a1a;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item-name {
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  color: #adb5bd;
+}
+
+.action-btn.delete:hover {
+  background: #fee;
+  color: #dc3545;
+}
+
 @media (max-width: 768px) {
   .sidebar {
     transform: translateX(-100%);
@@ -1062,32 +1449,22 @@ textarea.form-input {
     margin-left: 0;
   }
   
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+  .groups-grid {
+    grid-template-columns: 1fr;
   }
   
-  .table-controls {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .search-box-table {
-    width: 100%;
-  }
-  
-  .companies-table th,
-  .companies-table td {
-    padding: 12px;
-  }
-  
-  .address-cell {
-    display: none;
+  .modal.modal-large {
+    width: 95%;
   }
   
   .user-details {
     display: none;
+  }
+  
+  .table-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
   }
 }
 </style>

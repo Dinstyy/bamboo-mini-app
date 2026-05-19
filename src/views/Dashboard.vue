@@ -184,7 +184,6 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Sidebar */
 .sidebar {
   width: 280px;
   background: white;
@@ -262,7 +261,6 @@ body {
   color: white;
 }
 
-/* Main Content */
 .main-content {
   flex: 1;
   margin-left: 280px;
@@ -286,7 +284,6 @@ body {
   padding: 32px;
 }
 
-/* User Dropdown */
 .user-dropdown {
   position: relative;
   cursor: pointer;
@@ -339,7 +336,6 @@ body {
   transition: transform 0.2s ease;
 }
 
-/* Dropdown Menu */
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -382,7 +378,6 @@ body {
   margin: 4px 0;
 }
 
-/* Dropdown Animation */
 .dropdown-enter-active,
 .dropdown-leave-active {
   transition: all 0.2s ease;
@@ -394,7 +389,6 @@ body {
   transform: translateY(-10px);
 }
 
-/* Page Title */
 .page-title {
   margin-bottom: 32px;
 }

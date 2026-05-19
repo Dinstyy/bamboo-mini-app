@@ -4,6 +4,7 @@ import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Companies from '../views/Companies.vue'
 import ProcessStages from '../views/ProcessStages.vue'
+import ProcessStagesGroupDetail from '../views/ProcessStagesGroupDetail.vue' 
 
 const routes = [
   {
@@ -36,6 +37,12 @@ const routes = [
     path: '/process-stages', 
     name: 'ProcessStages',
     component: ProcessStages,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/process-stages/group/:id',
+    name: 'ProcessStagesGroupDetail',
+    component: ProcessStagesGroupDetail,
     meta: { requiresAuth: true }
   }
 ]
