@@ -36,6 +36,14 @@
           </svg>
           <span>Process Stages</span>
         </router-link>
+
+        <router-link to="/sales-quotation" class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6H21M3 12H21M3 18H21M7 3V21M17 3V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="6" y="4" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span>Sales Quotation</span>
+        </router-link>
       </nav>
     </aside>
 
@@ -186,7 +194,7 @@
               />
             </div>
             <div class="info-note">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg width="25" height="25" viewBox="0 0 16 16" fill="none">
                 <circle cx="8" cy="8" r="6" stroke="#8B5CF6" stroke-width="1.5"/>
                 <path d="M8 4V8L10 10" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
               </svg>
@@ -975,7 +983,8 @@ const viewExportDetail = (detail) => {
 }
 
 .section-header h2 {
-  font-size: 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 17px;
   font-weight: 600;
   color: #1a1a1a;
   margin: 0;
@@ -1080,7 +1089,7 @@ const viewExportDetail = (detail) => {
   transition: all 0.2s ease;
   border: none;
   background: transparent;
-  color: #adb5bd;
+  color: #dc3545;
 }
 
 .card-delete:hover {

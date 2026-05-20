@@ -45,6 +45,14 @@
 
         <span>Process Stages</span>
         </router-link>
+
+        <router-link to="/sales-quotation" class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6H21M3 12H21M3 18H21M7 3V21M17 3V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="6" y="4" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span>Sales Quotation</span>
+        </router-link>
       </nav>
     </aside>
 

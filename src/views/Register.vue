@@ -61,7 +61,6 @@
             </select>
           </div>
 
-          <!-- New Company Form -->
           <div v-if="form.companyOption === 'new'" class="company-section">
             <div class="section-title">
               <span>Company Details</span>
@@ -96,7 +95,6 @@
             </div>
           </div>
 
-          <!-- Existing Company Selection -->
           <div v-if="form.companyOption === 'existing'" class="company-section">
             <div class="section-title">
               <span>Select Company</span>

@@ -3,8 +3,10 @@ import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Companies from '../views/Companies.vue'
-import ProcessStages from '../views/ProcessStages.vue'
-import ProcessStagesGroupDetail from '../views/ProcessStagesGroupDetail.vue' 
+import ProcessStages from '../views/process_stages/ProcessStages.vue'
+import ProcessStagesGroupDetail from '../views/process_stages/ProcessStagesGroupDetail.vue' 
+import SalesQuotation from '../views/sales_quotation/SalesQuotation.vue'
+import SalesQuotationGroupDetail from '../views/sales_quotation/SalesQuotationGroupDetail.vue'
 
 const routes = [
   {
@@ -43,6 +45,18 @@ const routes = [
     path: '/process-stages/group/:id',
     name: 'ProcessStagesGroupDetail',
     component: ProcessStagesGroupDetail,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/sales-quotation',
+    name: 'SalesQuotation',
+    component: SalesQuotation,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/sales-quotation/group/:id',
+    name: 'SalesQuotationGroupDetail',
+    component: SalesQuotationGroupDetail,
     meta: { requiresAuth: true }
   }
 ]

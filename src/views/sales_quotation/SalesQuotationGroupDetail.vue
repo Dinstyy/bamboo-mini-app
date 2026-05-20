@@ -1,5 +1,5 @@
 <template>
-  <div class="process-stages-page">
+  <div class="sales-quotation-detail-page">
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="logo">
@@ -36,6 +36,14 @@
           </svg>
           <span>Process Stages</span>
         </router-link>
+
+        <router-link to="/sales-quotation" class="nav-item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M3 6H21M3 12H21M3 18H21M7 3V21M17 3V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <rect x="6" y="4" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span>Sales Quotation</span>
+        </router-link>
       </nav>
     </aside>
 
@@ -67,7 +75,6 @@
       </header>
 
       <div class="content-wrapper">
-        <!-- Tombol Back -->
         <div class="back-button-wrapper">
           <button class="btn-back" @click="goBack">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -118,18 +125,18 @@
 
           <div class="transactions-table-wrapper">
             <div class="table-header">
-              <h4>Transactions</h4>
+              <h4>Sales Quotations</h4>
               <div class="search-box">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M6.5 11C9.53757 11 12 8.53757 12 5.5C12 2.46243 9.53757 0 6.5 0C3.46243 0 1 2.46243 1 5.5C1 8.53757 3.46243 11 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
                   <path d="M12.5 12.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                <input type="text" v-model="searchDetail" placeholder="Search transactions...">
+                <input type="text" v-model="searchDetail" placeholder="Search quotations...">
               </div>
             </div>
             
             <div v-if="filteredDetails.length === 0" class="empty-state small">
-              <p>No transactions found</p>
+              <p>No quotations found</p>
             </div>
             
             <div v-else class="table-container">
@@ -137,56 +144,28 @@
                 <thead>
                   <tr>
                     <th>Number</th>
-                    <th>Work Order</th>
                     <th>Date</th>
-                    <th>Item No</th>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Export Status</th>
+                    <th>Name</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="detail in filteredDetails" :key="detail.id">
                     <td>{{ detail.number || '-' }}</td>
-                    <td>{{ detail.workOrderNumber || '-' }}</td>
                     <td>{{ formatDate(detail.transDate) }}</td>
-                    <td>{{ detail.itemNo || '-' }}</td>
-                    <td class="item-name">{{ detail.itemName || '-' }}</td>
-                    <td class="item-qty">{{ formatNumber(detail.quantity) }}</td>
-
-                    <td class="export-status">
-                      <span :class="['export-badge', getExportStatusClass(detail.export_status)]">
-                        {{ detail.export_status || 'PENDING' }}
-                      </span>
-                      <div v-if="detail.export_error_message" class="export-error-tooltip">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <circle cx="7" cy="7" r="6" stroke="#dc3545" stroke-width="1.2"/>
-                          <path d="M7 4V7M7 10H7.01" stroke="#dc3545" stroke-width="1.2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="tooltip-text">{{ detail.export_error_message }}</span>
-                      </div>
-                    </td>
-
+                    <td class="item-name">{{ detail.name || '-' }}</td>
                     <td class="actions">
-                      <button 
-                        v-if="detail.export_status !== 'SUCCESS'"
-                        class="action-btn export" 
-                        @click="exportTransaction(detail)"
-                        :disabled="exportingId === detail.id"
-                        title="Export"
-                      >
+                    <button class="action-btn view" @click="viewQuotationDetail(detail)" title="View Detail">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M8 1V11M8 11L11 8M8 11L5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                          <path d="M2 13H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M8 3C4 3 2 8 2 8C2 8 4 13 8 13C12 13 14 8 14 8C14 8 12 3 8 3Z" stroke="currentColor" stroke-width="1.5"/>
+                            <circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
-                      </button>
-                      
-                      <button class="action-btn delete" @click="deleteTransaction(detail)" title="Delete">
+                    </button>
+                    <button class="action-btn delete" @click="deleteDetail(detail)" title="Delete">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                            <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                         </svg>
-                      </button>
+                    </button>
                     </td>
                   </tr>
                 </tbody>
@@ -213,7 +192,6 @@ const dropdownRef = ref(null)
 const selectedGroup = ref(null)
 const loading = ref(false)
 const searchDetail = ref('')
-const exportingId = ref(null)
 
 const logout = () => {
   localStorage.removeItem('token')
@@ -232,7 +210,7 @@ const handleClickOutside = (event) => {
 }
 
 const goBack = () => {
-  router.push('/process-stages')
+  router.push('/sales-quotation')
 }
 
 const formatDate = (date) => {
@@ -245,11 +223,6 @@ const formatDateTime = (date) => {
   return new Date(date).toLocaleString('id-ID')
 }
 
-const formatNumber = (num) => {
-  if (!num) return '0'
-  return new Intl.NumberFormat('id-ID').format(num)
-}
-
 const getStatusClass = (status) => {
   const classes = {
     'PENDING': 'status-pending',
@@ -260,27 +233,17 @@ const getStatusClass = (status) => {
   return classes[status] || 'status-pending'
 }
 
-const getExportStatusClass = (status) => {
-  const classes = {
-    'PENDING': 'status-pending',
-    'IN_PROGRESS': 'status-progress',
-    'SUCCESS': 'status-success',
-    'FAILED': 'status-failed'
-  }
-  return classes[status] || 'status-pending'
-}
-
 const loadGroupDetail = async () => {
   const groupId = route.params.id
   if (!groupId) {
-    router.push('/process-stages')
+    router.push('/sales-quotation')
     return
   }
   
   loading.value = true
   try {
     const response = await axios.get(
-      `${import.meta.env.VITE_API_URL}/api/process-stages/groups/${groupId}`,
+      `${import.meta.env.VITE_API_URL}/api/sales-quotation/groups/${groupId}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -292,7 +255,7 @@ const loadGroupDetail = async () => {
   } catch (error) {
     console.error('Failed to load group detail:', error)
     alert('Gagal memuat detail group')
-    router.push('/process-stages')
+    router.push('/sales-quotation')
   } finally {
     loading.value = false
   }
@@ -305,18 +268,16 @@ const filteredDetails = computed(() => {
   const query = searchDetail.value.toLowerCase()
   return selectedGroup.value.details.filter(detail => 
     (detail.number && detail.number.toLowerCase().includes(query)) ||
-    (detail.workOrderNumber && detail.workOrderNumber.toLowerCase().includes(query)) ||
-    (detail.itemName && detail.itemName.toLowerCase().includes(query)) ||
-    (detail.itemNo && detail.itemNo.toLowerCase().includes(query))
+    (detail.name && detail.name.toLowerCase().includes(query))
   )
 })
 
-const deleteTransaction = async (detail) => {
-  if (!confirm(`Hapus transaksi ${detail.number || 'ini'}?`)) return
+const deleteDetail = async (detail) => {
+  if (!confirm(`Hapus quotation ${detail.number || 'ini'}?`)) return
   
   try {
     const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/api/process-stages/details/${detail.id}`,
+      `${import.meta.env.VITE_API_URL}/api/sales-quotation/details/${detail.id}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -325,43 +286,17 @@ const deleteTransaction = async (detail) => {
     )
     
     if (response.data.success) {
-      alert('Transaksi berhasil dihapus')
+      alert('Quotation berhasil dihapus')
       loadGroupDetail()
     }
   } catch (error) {
-    console.error('Failed to delete transaction:', error)
-    alert('Gagal menghapus transaksi')
+    console.error('Failed to delete detail:', error)
+    alert('Gagal menghapus quotation')
   }
 }
 
-const exportTransaction = async (detail) => {
-  if (!confirm(`Export transaction ${detail.number || detail.id} to Accurate?`)) return
-  
-  exportingId.value = detail.id
-  
-  try {
-    const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/process-stages/export/${detail.id}`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-      }
-    )
-    
-    if (response.data.success) {
-      alert('Export successful! Transaction created in Accurate.')
-      loadGroupDetail()
-    }
-  } catch (error) {
-    console.error('Failed to export:', error)
-    const errorMsg = error.response?.data?.error || 'Failed to export transaction'
-    alert(`Export failed: ${errorMsg}`)
-    loadGroupDetail()
-  } finally {
-    exportingId.value = null
-  }
+const viewQuotationDetail = (detail) => {
+  alert(`Detail Quotation:\nNumber: ${detail.number}\nDate: ${detail.transDate}\nName: ${detail.name}\nID: ${detail.id}`)
 }
 
 onMounted(() => {
@@ -385,7 +320,7 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
-.process-stages-page {
+.sales-quotation-detail-page {
   display: flex;
   min-height: 100vh;
   width: 100%;
@@ -483,10 +418,6 @@ onUnmounted(() => {
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-.item-qty {
-  text-align: center;
 }
 
 .content-wrapper {
@@ -625,11 +556,11 @@ onUnmounted(() => {
 }
 
 .detail-title h2 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
 }
 
 .status-badge {
@@ -754,52 +685,6 @@ onUnmounted(() => {
   border-bottom: 1px solid #f0f0f0;
 }
 
-.export-badge {
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  display: inline-block;
-}
-
-.status-success {
-  background: #dcfce7;
-  color: #16a34a;
-}
-
-.export-status {
-  position: relative;
-}
-
-.export-error-tooltip {
-  display: inline-flex;
-  align-items: center;
-  margin-left: 6px;
-  cursor: help;
-  position: relative;
-}
-
-.export-error-tooltip .tooltip-text {
-  visibility: hidden;
-  background-color: #333;
-  color: #fff;
-  text-align: left;
-  border-radius: 6px;
-  padding: 8px 12px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  transform: translateX(-50%);
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: normal;
-}
-
-.export-error-tooltip:hover .tooltip-text {
-  visibility: visible;
-}
-
 .action-btn {
   width: 32px;
   height: 32px;
@@ -814,13 +699,17 @@ onUnmounted(() => {
   color: #adb5bd;
 }
 
-.action-btn.export {
-  color: #8B5CF6;
+.action-btn.view {
+  color: #3b82f6;
 }
 
-.action-btn.export:hover {
-  background: #f3e8ff;
-  color: #6B21A5;
+.action-btn.view:hover {
+  background: #C4E2F5;
+  color: #3b82f6;
+}
+
+.action-btn.delete {
+  color: #dc3545;
 }
 
 .action-btn.delete:hover {
