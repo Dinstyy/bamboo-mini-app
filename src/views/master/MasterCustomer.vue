@@ -54,17 +54,17 @@
             </button>
           </div>
           <div class="card-body">
-            <div class="date-range">
-              <span class="label">Period:</span>
-              <span>{{ formatDate(group.tanggal_mulai) }} - {{ formatDate(group.tanggal_akhir) }}</span>
-            </div>
-            <div class="total-data">
-              <span class="label">Total Data:</span>
-              <span class="total-count">{{ group.total_data }} items</span>
-            </div>
             <div class="created-at">
               <span class="label">Created:</span>
               <span>{{ formatDateTime(group.createdAt) }}</span>
+            </div>
+            <div class="total-data">
+              <span class="label">Total Data:</span>
+              <span class="total-count">{{ group.total_data }} customers</span>
+            </div>
+            <div class="total-page">
+              <span class="label">Total Page:</span>
+              <span>{{ group.total_pages }} pages</span>
             </div>
             <div v-if="group.error_message" class="error-message">
               <span class="label">Error:</span>
@@ -593,6 +593,12 @@ onUnmounted(() => {
   color: #6c757d;
   display: inline-block;
   width: 70px;
+}
+
+.total-page {
+  font-size: 13px;
+  color: #1a1a1a;
+  margin-bottom: 8px;
 }
 
 .date-range, .total-data, .created-at {

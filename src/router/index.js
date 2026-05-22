@@ -10,6 +10,7 @@ import SalesQuotationGroupDetail from '../views/sales_quotation/SalesQuotationGr
 import SalesQuotationDetail from '../views/sales_quotation/SalesQuotationDetail.vue'
 import MasterCustomer from '../views/master/MasterCustomer.vue'
 import MasterBranch from '../views/master/MasterBranch.vue'
+import MasterCustomerGroupDetail from '../views/master/MasterCustomerGroupDetail.vue'
 
 const routes = [
   {
@@ -79,6 +80,18 @@ const routes = [
     name: 'MasterBranch',
     component: MasterBranch,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/master-customer',
+    name: 'MasterCustomer',
+    component: MasterCustomer,
+    meta: { requiresAuth: true }
+  },
+  {
+      path: '/master-customer/group/:id',
+      name: 'MasterCustomerGroupDetail',
+      component: MasterCustomerGroupDetail,
+      meta: { requiresAuth: true }
   }
 ]
 
