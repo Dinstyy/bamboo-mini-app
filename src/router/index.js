@@ -7,6 +7,9 @@ import ProcessStages from '../views/process_stages/ProcessStages.vue'
 import ProcessStagesGroupDetail from '../views/process_stages/ProcessStagesGroupDetail.vue' 
 import SalesQuotation from '../views/sales_quotation/SalesQuotation.vue'
 import SalesQuotationGroupDetail from '../views/sales_quotation/SalesQuotationGroupDetail.vue'
+import SalesQuotationDetail from '../views/sales_quotation/SalesQuotationDetail.vue'
+import MasterCustomer from '../views/master/MasterCustomer.vue'
+import MasterBranch from '../views/master/MasterBranch.vue'
 
 const routes = [
   {
@@ -57,6 +60,24 @@ const routes = [
     path: '/sales-quotation/group/:id',
     name: 'SalesQuotationGroupDetail',
     component: SalesQuotationGroupDetail,
+    meta: { requiresAuth: true }
+  },
+  { 
+    path: '/sales-quotation/detail',
+    name: 'SalesQuotationDetail',
+    component: SalesQuotationDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/master-customer',
+    name: 'MasterCustomer',
+    component: MasterCustomer,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/master-branch',
+    name: 'MasterBranch',
+    component: MasterBranch,
     meta: { requiresAuth: true }
   }
 ]

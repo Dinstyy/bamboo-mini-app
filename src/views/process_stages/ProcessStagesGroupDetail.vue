@@ -1,212 +1,134 @@
 <template>
-  <div class="process-stages-page">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo">
-          <div class="logo-icon">B</div>
-          <span class="logo-text">Bamboo</span>
+  <AppLayout>
+    <div class="back-button-wrapper">
+      <button class="btn-back" @click="goBack">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+          <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Back to Pull History
+      </button>
+    </div>
+
+    <div v-if="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading group details...</p>
+    </div>
+
+    <div v-else-if="!selectedGroup" class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+        <path d="M24 4L4 12L24 20L44 12L24 4Z" stroke="#d1d5db" stroke-width="1.5"/>
+        <path d="M4 24L24 32L44 24" stroke="#d1d5db" stroke-width="1.5"/>
+        <path d="M4 34L24 42L44 34" stroke="#d1d5db" stroke-width="1.5"/>
+      </svg>
+      <p>Group not found</p>
+    </div>
+
+    <div v-else class="detail-content">
+      <div class="detail-header">
+        <div class="detail-title">
+          <h2>Group Detail #{{ selectedGroup.id }}</h2>
+          <span :class="['status-badge', getStatusClass(selectedGroup.status)]">
+            {{ selectedGroup.status }}
+          </span>
         </div>
       </div>
 
-      <nav class="sidebar-nav">
-        <router-link to="/dashboard" class="nav-item">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M2.5 10H17.5M2.5 10L10 2.5L17.5 10M4.16667 8.33333V15.8333C4.16667 16.2754 4.52283 16.6317 4.965 16.6667H7.5V12.5H12.5V16.6667H15.035C15.4772 16.6317 15.8333 16.2754 15.8333 15.8333V8.33333M7.5 16.6667H12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span>Dashboard</span>
-        </router-link>
+      <div class="detail-summary">
+        <div class="summary-item">
+          <span class="label">Period:</span>
+          <span>{{ formatDate(selectedGroup.tanggal_mulai) }} - {{ formatDate(selectedGroup.tanggal_akhir) }}</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Total Data:</span>
+          <span>{{ selectedGroup.total_data }} items</span>
+        </div>
+        <div class="summary-item">
+          <span class="label">Created:</span>
+          <span>{{ formatDateTime(selectedGroup.createdAt) }}</span>
+        </div>
+      </div>
+
+      <div class="transactions-table-wrapper">
+        <div class="table-header">
+          <h4>Transactions</h4>
+          <div class="search-box">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M6.5 11C9.53757 11 12 8.53757 12 5.5C12 2.46243 9.53757 0 6.5 0C3.46243 0 1 2.46243 1 5.5C1 8.53757 3.46243 11 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12.5 12.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            <input type="text" v-model="searchDetail" placeholder="Search transactions...">
+          </div>
+        </div>
         
-        <router-link to="/companies" class="nav-item">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-            <path d="M3.33333 3.33333H16.6667V16.6667H3.33333V3.33333Z" stroke="currentColor" stroke-width="1.5"/>
-            <path d="M6.66667 6.66667H13.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M6.66667 10H13.3333" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <path d="M6.66667 13.3333H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span>Companies</span>
-        </router-link>
-
-        <router-link to="/process-stages" class="nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <circle cx="6" cy="6" r="2" stroke="currentColor" stroke-width="1.8"/>
-            <circle cx="18" cy="12" r="2" stroke="currentColor" stroke-width="1.8"/>
-            <circle cx="6" cy="18" r="2" stroke="currentColor" stroke-width="1.8"/>
-            <path d="M8 6H14C16.2091 6 18 7.79086 18 10V10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M8 18H14C16.2091 18 18 16.2091 18 14V14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-          <span>Process Stages</span>
-        </router-link>
-
-        <router-link to="/sales-quotation" class="nav-item">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M3 6H21M3 12H21M3 18H21M7 3V21M17 3V21" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            <rect x="6" y="4" width="12" height="16" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-          <span>Sales Quotation</span>
-        </router-link>
-      </nav>
-    </aside>
-
-    <main class="main-content">
-      <header class="top-bar">
-        <div class="user-dropdown" @click="toggleDropdown" ref="dropdownRef">
-          <div class="user-info">
-            <div class="user-avatar">{{ user?.username?.charAt(0).toUpperCase() || 'U' }}</div>
-            <div class="user-details">
-              <p class="user-name">{{ user?.username }}</p>
-              <p class="user-email">{{ user?.email }}</p>
-            </div>
-            <svg class="dropdown-arrow" width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-          </div>
-          
-          <transition name="dropdown">
-            <div v-if="isDropdownOpen" class="dropdown-menu">
-              <div class="dropdown-item logout" @click="logout">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path d="M6 14H3.5C2.67157 14 2 13.3284 2 12.5V3.5C2 2.67157 2.67157 2 3.5 2H6M11 11L14 8L11 5M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <span>Logout</span>
-              </div>
-            </div>
-          </transition>
+        <div v-if="filteredDetails.length === 0" class="empty-state small">
+          <p>No transactions found</p>
         </div>
-      </header>
-
-      <div class="content-wrapper">
-        <div class="back-button-wrapper">
-          <button class="btn-back" @click="goBack">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M12 4L6 10L12 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Back to Pull History
-          </button>
-        </div>
-
-        <div v-if="loading" class="loading-state">
-          <div class="spinner"></div>
-          <p>Loading group details...</p>
-        </div>
-
-        <div v-else-if="!selectedGroup" class="empty-state">
-          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-            <path d="M24 4L4 12L24 20L44 12L24 4Z" stroke="#d1d5db" stroke-width="1.5"/>
-            <path d="M4 24L24 32L44 24" stroke="#d1d5db" stroke-width="1.5"/>
-            <path d="M4 34L24 42L44 34" stroke="#d1d5db" stroke-width="1.5"/>
-          </svg>
-          <p>Group not found</p>
-        </div>
-
-        <div v-else class="detail-content">
-          <div class="detail-header">
-            <div class="detail-title">
-              <h2>Group Detail #{{ selectedGroup.id }}</h2>
-              <span :class="['status-badge', getStatusClass(selectedGroup.status)]">
-                {{ selectedGroup.status }}
-              </span>
-            </div>
-          </div>
-
-          <div class="detail-summary">
-            <div class="summary-item">
-              <span class="label">Period:</span>
-              <span>{{ formatDate(selectedGroup.tanggal_mulai) }} - {{ formatDate(selectedGroup.tanggal_akhir) }}</span>
-            </div>
-            <div class="summary-item">
-              <span class="label">Total Data:</span>
-              <span>{{ selectedGroup.total_data }} items</span>
-            </div>
-            <div class="summary-item">
-              <span class="label">Created:</span>
-              <span>{{ formatDateTime(selectedGroup.createdAt) }}</span>
-            </div>
-          </div>
-
-          <div class="transactions-table-wrapper">
-            <div class="table-header">
-              <h4>Transactions</h4>
-              <div class="search-box">
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <path d="M6.5 11C9.53757 11 12 8.53757 12 5.5C12 2.46243 9.53757 0 6.5 0C3.46243 0 1 2.46243 1 5.5C1 8.53757 3.46243 11 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
-                  <path d="M12.5 12.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                </svg>
-                <input type="text" v-model="searchDetail" placeholder="Search transactions...">
-              </div>
-            </div>
-            
-            <div v-if="filteredDetails.length === 0" class="empty-state small">
-              <p>No transactions found</p>
-            </div>
-            
-            <div v-else class="table-container">
-              <table class="transactions-table">
-                <thead>
-                  <tr>
-                    <th>Number</th>
-                    <th>Work Order</th>
-                    <th>Date</th>
-                    <th>Item No</th>
-                    <th>Item Name</th>
-                    <th>Quantity</th>
-                    <th>Export Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="detail in filteredDetails" :key="detail.id">
-                    <td>{{ detail.number || '-' }}</td>
-                    <td>{{ detail.workOrderNumber || '-' }}</td>
-                    <td>{{ formatDate(detail.transDate) }}</td>
-                    <td>{{ detail.itemNo || '-' }}</td>
-                    <td class="item-name">{{ detail.itemName || '-' }}</td>
-                    <td class="item-qty">{{ formatNumber(detail.quantity) }}</td>
-
-                    <td class="export-status">
-                      <span :class="['export-badge', getExportStatusClass(detail.export_status)]">
-                        {{ detail.export_status || 'PENDING' }}
-                      </span>
-                      <div v-if="detail.export_error_message" class="export-error-tooltip">
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <circle cx="7" cy="7" r="6" stroke="#dc3545" stroke-width="1.2"/>
-                          <path d="M7 4V7M7 10H7.01" stroke="#dc3545" stroke-width="1.2" stroke-linecap="round"/>
-                        </svg>
-                        <span class="tooltip-text">{{ detail.export_error_message }}</span>
-                      </div>
-                    </td>
-
-                    <td class="actions">
-                      <button 
-                        v-if="detail.export_status !== 'SUCCESS'"
-                        class="action-btn export" 
-                        @click="exportTransaction(detail)"
-                        :disabled="exportingId === detail.id"
-                        title="Export"
-                      >
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M8 1V11M8 11L11 8M8 11L5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                          <path d="M2 13H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                      </button>
-                      
-                      <button class="action-btn delete" @click="deleteTransaction(detail)" title="Delete">
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                          <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        
+        <div v-else class="table-container">
+          <table class="transactions-table">
+            <thead>
+              <tr>
+                <th>Number</th>
+                <th>Work Order</th>
+                <th>Date</th>
+                <th>Item No</th>
+                <th>Item Name</th>
+                <th>Quantity</th>
+                <th>Export Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="detail in filteredDetails" :key="detail.id">
+                <td>{{ detail.number || '-' }}</td>
+                <td>{{ detail.workOrderNumber || '-' }}</td>
+                <td>{{ formatDate(detail.transDate) }}</td>
+                <td>{{ detail.itemNo || '-' }}</td>
+                <td class="item-name">{{ detail.itemName || '-' }}</td>
+                <td class="item-qty">{{ formatNumber(detail.quantity) }}</td>
+                <td class="export-status">
+                  <span :class="['export-badge', getExportStatusClass(detail.export_status)]">
+                    {{ detail.export_status || 'PENDING' }}
+                  </span>
+                  <div v-if="detail.export_error_message" class="export-error-tooltip">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <circle cx="7" cy="7" r="6" stroke="#dc3545" stroke-width="1.2"/>
+                      <path d="M7 4V7M7 10H7.01" stroke="#dc3545" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="tooltip-text">{{ detail.export_error_message }}</span>
+                  </div>
+                </td>
+                <td class="actions">
+                  <button 
+                    v-if="detail.export_status !== 'SUCCESS'"
+                    class="action-btn export" 
+                    @click="exportTransaction(detail)"
+                    :disabled="exportingId === detail.id"
+                    title="Export"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M8 1V11M8 11L11 8M8 11L5 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M2 13H14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                  
+                  <button class="action-btn delete" @click="deleteTransaction(detail)" title="Delete">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M2 4H3.33333H14M5.33333 4V2.66667C5.33333 2.31304 5.47381 1.97391 5.72386 1.72386C5.97391 1.47381 6.31304 1.33333 6.66667 1.33333H9.33333C9.68696 1.33333 10.0261 1.47381 10.2761 1.72386C10.5262 1.97391 10.6667 2.31304 10.6667 2.66667V4M12.6667 4V13.3333C12.6667 13.687 12.5262 14.0261 12.2761 14.2761C12.0261 14.5262 11.687 14.6667 11.3333 14.6667H4.66667C4.31304 14.6667 3.97391 14.5262 3.72386 14.2761C3.47381 14.0261 3.33333 13.687 3.33333 13.3333V4H12.6667Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
+  </AppLayout>
 </template>
 
 <script setup>
+import AppLayout from '@/components/AppLayout.vue'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
@@ -390,208 +312,7 @@ onUnmounted(() => {
 
 * {
   box-sizing: border-box;
-}
-
-.process-stages-page {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-  background: #f8f9fa;
   font-family: 'Plus Jakarta Sans', sans-serif;
-}
-
-.sidebar {
-  width: 280px;
-  background: white;
-  border-right: 1px solid #e9ecef;
-  display: flex;
-  flex-direction: column;
-  position: fixed;
-  height: 100vh;
-  left: 0;
-  top: 0;
-}
-
-.sidebar-header {
-  padding: 24px;
-  border-bottom: 1px solid #e9ecef;
-}
-
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.logo-text {
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.sidebar-nav {
-  flex: 1;
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  color: #6c757d;
-  text-decoration: none;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-  font-weight: 500;
-  font-size: 14px;
-}
-
-.nav-item:hover {
-  background: #f8f9fa;
-  color: #8B5CF6;
-}
-
-.nav-item.active {
-  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
-  color: white;
-}
-
-.main-content {
-  flex: 1;
-  margin-left: 280px;
-  min-height: 100vh;
-  background: #f8f9fa;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  background: white;
-  padding: 10px 32px;
-  border-bottom: 1px solid #e9ecef;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.item-qty {
-  text-align: center;
-}
-
-.content-wrapper {
-  padding: 32px;
-}
-
-.user-dropdown {
-  position: relative;
-  cursor: pointer;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 12px 6px 8px;
-  border-radius: 12px;
-  transition: all 0.2s ease;
-}
-
-.user-info:hover {
-  background: #f8f9fa;
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: white;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.user-details {
-  text-align: left;
-}
-
-.user-name {
-  font-weight: 600;
-  margin-bottom: -5px;
-  color: #1a1a1a;
-  font-size: 14px;
-}
-
-.user-email {
-  font-size: 12px;
-  color: #6c757d;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: calc(100% + 8px);
-  right: 0;
-  min-width: 200px;
-  background: white;
-  border: 1px solid #e9ecef;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  z-index: 1000;
-}
-
-.dropdown-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  color: #1a1a1a;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  cursor: pointer;
-}
-
-.dropdown-item:hover {
-  background: #f8f9fa;
-}
-
-.dropdown-item.logout {
-  color: #dc3545;
-}
-
-.dropdown-item.logout:hover {
-  background: #fee;
-}
-
-.dropdown-enter-active,
-.dropdown-leave-active {
-  transition: all 0.2s ease;
-}
-
-.dropdown-enter-from,
-.dropdown-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 
 .back-button-wrapper {
@@ -632,11 +353,11 @@ onUnmounted(() => {
 }
 
 .detail-title h2 {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 22px;
-    font-weight: 600;
-    color: #1a1a1a;
-    margin: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
 }
 
 .status-badge {
@@ -761,6 +482,10 @@ onUnmounted(() => {
   border-bottom: 1px solid #f0f0f0;
 }
 
+.item-qty {
+  text-align: center;
+}
+
 .export-badge {
   padding: 4px 8px;
   border-radius: 6px;
@@ -846,6 +571,10 @@ onUnmounted(() => {
   border-radius: 16px;
 }
 
+.empty-state.small {
+  padding: 40px;
+}
+
 .spinner {
   width: 40px;
   height: 40px;
@@ -861,15 +590,6 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-  }
-  
-  .main-content {
-    margin-left: 0;
-  }
-  
   .detail-summary {
     grid-template-columns: 1fr;
   }
@@ -882,10 +602,6 @@ onUnmounted(() => {
   
   .search-box input {
     width: 100%;
-  }
-  
-  .user-details {
-    display: none;
   }
 }
 </style>

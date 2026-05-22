@@ -2,10 +2,10 @@
   <AppLayout>
     <div class="page-header">
       <div>
-        <h1>Sales Quotation</h1>
-        <p>Pull sales quotation data by date range</p>
+        <h1>Master Customer</h1>
+        <p>Pull master customer data by date range</p>
       </div>
-      <button class="btn-primary" @click="openFetchModal">
+      <button class="btn-primary" @click="openFetchConfirm">
         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M9 3V15M3 9H15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         </svg>
@@ -88,49 +88,22 @@
       </div>
     </div>
 
-    <div v-if="showFetchModal" class="modal-overlay" @click="closeFetchModal">
-      <div class="modal" @click.stop>
-        <div class="modal-header">
-          <h3>Pull Sales Quotation Data</h3>
-          <button class="close-btn" @click="closeFetchModal">×</button>
+    <div v-if="showConfirmDialog" class="modal-overlay" @click="closeConfirmDialog">
+      <div class="confirm-modal" @click.stop>
+        <div class="confirm-icon">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+            <circle cx="24" cy="24" r="20" stroke="#8B5CF6" stroke-width="1.5"/>
+            <path d="M24 16V24M24 32H24.01" stroke="#8B5CF6" stroke-width="2" stroke-linecap="round"/>
+          </svg>
         </div>
-        <form @submit.prevent="submitFetchData">
-          <div class="modal-body">
-            <div class="form-group">
-              <label>Tanggal Mulai <span class="required">*</span></label>
-              <input 
-                type="date" 
-                v-model="fetchForm.tanggal_mulai" 
-                class="form-input"
-                :max="fetchForm.tanggal_akhir"
-                required
-              />
-            </div>
-            <div class="form-group">
-              <label>Tanggal Akhir <span class="required">*</span></label>
-              <input 
-                type="date" 
-                v-model="fetchForm.tanggal_akhir" 
-                class="form-input"
-                :min="fetchForm.tanggal_mulai"
-                required
-              />
-            </div>
-            <div class="info-note">
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <circle cx="8" cy="8" r="6" stroke="#8B5CF6" stroke-width="1.5"/>
-                <path d="M8 4V8L10 10" stroke="#8B5CF6" stroke-width="1.5" stroke-linecap="round"/>
-              </svg>
-              <span>Data akan ditarik secara background. Anda akan mendapatkan notifikasi saat selesai.</span>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn-secondary" @click="closeFetchModal">Cancel</button>
-            <button type="submit" class="btn-primary" :disabled="fetching">
-              {{ fetching ? 'Processing...' : 'Start Pull' }}
-            </button>
-          </div>
-        </form>
+        <h3>Confirm Pull Data</h3>
+        <p class="info-text">This will fetch the latest customer data from the source.</p>
+        <div class="confirm-buttons">
+          <button class="btn-confirm-cancel" @click="closeConfirmDialog">Cancel</button>
+          <button class="btn-confirm-yes" @click="confirmFetchData" :disabled="fetching">
+            {{ fetching ? 'Processing...' : 'Yes, Pull Data' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -163,40 +136,40 @@
 
           <div class="transactions-table-wrapper">
             <div class="table-header">
-              <h4>Sales Quotations</h4>
+              <h4>Customer Data</h4>
               <div class="search-box">
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                   <path d="M6.5 11C9.53757 11 12 8.53757 12 5.5C12 2.46243 9.53757 0 6.5 0C3.46243 0 1 2.46243 1 5.5C1 8.53757 3.46243 11 6.5 11Z" stroke="currentColor" stroke-width="1.5"/>
                   <path d="M12.5 12.5L10.5 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
-                <input type="text" v-model="searchDetail" placeholder="Search quotations...">
+                <input type="text" v-model="searchDetail" placeholder="Search customers...">
               </div>
             </div>
             
             <div v-if="loadingDetail" class="loading-state small">
               <div class="spinner small"></div>
-              <p>Loading quotations...</p>
+              <p>Loading customers...</p>
             </div>
             
             <div v-else-if="filteredDetails.length === 0" class="empty-state small">
-              <p>No quotations found</p>
+              <p>No customers found</p>
             </div>
             
             <div v-else class="table-container">
               <table class="transactions-table">
                 <thead>
                   <tr>
-                    <th>Number</th>
-                    <th>Date</th>
-                    <th>Name</th>
+                    <th>Customer No</th>
+                    <th>Customer Name</th>
+                    <th>Phone</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr v-for="detail in filteredDetails" :key="detail.id">
-                    <td>{{ detail.number || '-' }}</td>
-                    <td>{{ formatDate(detail.transDate) }}</td>
-                    <td class="item-name">{{ detail.name || '-' }}</td>
+                    <td>{{ detail.customerNo || '-' }}</td>
+                    <td class="item-name">{{ detail.customerName || '-' }}</td>
+                    <td>{{ detail.phone || '-' }}</td>
                     <td class="actions">
                       <button class="action-btn delete" @click="deleteDetail(detail)">
                         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -226,8 +199,6 @@ import axios from 'axios'
 
 const router = useRouter()
 const user = ref(null)
-const isDropdownOpen = ref(false)
-const dropdownRef = ref(null)
 
 const groups = ref([])
 const loadingGroups = ref(false)
@@ -238,12 +209,8 @@ const pagination = ref({
   totalPages: 0
 })
 
-const showFetchModal = ref(false)
+const showConfirmDialog = ref(false)
 const fetching = ref(false)
-const fetchForm = ref({
-  tanggal_mulai: '',
-  tanggal_akhir: ''
-})
 
 const selectedGroup = ref(null)
 const loadingDetail = ref(false)
@@ -253,16 +220,6 @@ const logout = () => {
   localStorage.removeItem('token')
   localStorage.removeItem('user')
   router.push('/login')
-}
-
-const toggleDropdown = () => {
-  isDropdownOpen.value = !isDropdownOpen.value
-}
-
-const handleClickOutside = (event) => {
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    isDropdownOpen.value = false
-  }
 }
 
 const formatDate = (date) => {
@@ -288,7 +245,7 @@ const getStatusClass = (status) => {
 const loadGroups = async () => {
   loadingGroups.value = true
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/sales-quotation/groups`, {
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/master-customer/groups`, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.pageSize
@@ -315,30 +272,22 @@ const changePage = (newPage) => {
   loadGroups()
 }
 
-const openFetchModal = () => {
-  fetchForm.value = {
-    tanggal_mulai: '',
-    tanggal_akhir: ''
-  }
-  showFetchModal.value = true
+const openFetchConfirm = () => {
+  showConfirmDialog.value = true
 }
 
-const closeFetchModal = () => {
-  showFetchModal.value = false
+const closeConfirmDialog = () => {
+  showConfirmDialog.value = false
   fetching.value = false
 }
 
-const submitFetchData = async () => {
-  if (!fetchForm.value.tanggal_mulai || !fetchForm.value.tanggal_akhir) {
-    alert('Tanggal mulai dan tanggal akhir wajib diisi')
-    return
-  }
-  
+const confirmFetchData = async () => {
   fetching.value = true
+  
   try {
     const response = await axios.post(
-      `${import.meta.env.VITE_API_URL}/api/sales-quotation/fetch`,
-      fetchForm.value,
+      `${import.meta.env.VITE_API_URL}/api/master-customer/fetch`,
+      {},
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -348,7 +297,7 @@ const submitFetchData = async () => {
     
     if (response.data.success) {
       alert('Proses penarikan data dimulai! Silahkan refresh halaman untuk melihat progress.')
-      closeFetchModal()
+      closeConfirmDialog()
       loadGroups()
       
       let attempts = 0
@@ -364,13 +313,14 @@ const submitFetchData = async () => {
   } catch (error) {
     console.error('Failed to fetch data:', error)
     alert(error.response?.data?.error || 'Gagal memulai proses penarikan data')
+    closeConfirmDialog()
   } finally {
     fetching.value = false
   }
 }
 
 const viewGroupDetail = (group) => {
-  router.push(`/sales-quotation/group/${group.id}`)
+  router.push(`/master-customer/group/${group.id}`)
 }
 
 const closeDetailModal = () => {
@@ -384,17 +334,18 @@ const filteredDetails = computed(() => {
   
   const query = searchDetail.value.toLowerCase()
   return selectedGroup.value.details.filter(detail => 
-    (detail.number && detail.number.toLowerCase().includes(query)) ||
-    (detail.name && detail.name.toLowerCase().includes(query))
+    (detail.customerNo && detail.customerNo.toLowerCase().includes(query)) ||
+    (detail.customerName && detail.customerName.toLowerCase().includes(query)) ||
+    (detail.phone && detail.phone.toLowerCase().includes(query))
   )
 })
 
 const deleteDetail = async (detail) => {
-  if (!confirm(`Hapus quotation ${detail.number || 'ini'}?`)) return
+  if (!confirm(`Hapus customer ${detail.customerName || 'ini'}?`)) return
   
   try {
     const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/api/sales-quotation/details/${detail.id}`,
+      `${import.meta.env.VITE_API_URL}/api/master-customer/details/${detail.id}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -403,7 +354,7 @@ const deleteDetail = async (detail) => {
     )
     
     if (response.data.success) {
-      alert('Quotation berhasil dihapus')
+      alert('Customer berhasil dihapus')
       if (selectedGroup.value) {
         await viewGroupDetail(selectedGroup.value)
       }
@@ -411,16 +362,16 @@ const deleteDetail = async (detail) => {
     }
   } catch (error) {
     console.error('Failed to delete detail:', error)
-    alert('Gagal menghapus quotation')
+    alert('Gagal menghapus customer')
   }
 }
 
 const deleteGroup = async (group) => {
-  if (!confirm(`Hapus group #${group.id} beserta semua transaksinya?`)) return
+  if (!confirm(`Hapus group #${group.id} beserta semua datanya?`)) return
   
   try {
     const response = await axios.delete(
-      `${import.meta.env.VITE_API_URL}/api/sales-quotation/groups/${group.id}`,
+      `${import.meta.env.VITE_API_URL}/api/master-customer/groups/${group.id}`,
       {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`
@@ -438,21 +389,15 @@ const deleteGroup = async (group) => {
   }
 }
 
-const viewQuotationDetail = (detail) => {
-  alert(`Detail Quotation:\nNumber: ${detail.number}\nDate: ${detail.transDate}\nName: ${detail.name}\nID: ${detail.id}`)
-}
-
 onMounted(() => {
   const userData = localStorage.getItem('user')
   if (userData) {
     user.value = JSON.parse(userData)
   }
   loadGroups()
-  document.addEventListener('click', handleClickOutside)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
 })
 </script>
 
@@ -498,11 +443,18 @@ onUnmounted(() => {
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-primary:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .groups-section {
@@ -538,6 +490,7 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-refresh:hover {
@@ -687,6 +640,17 @@ onUnmounted(() => {
   border: 1px solid #e9ecef;
   border-radius: 6px;
   cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 13px;
+  color: #6c757d;
 }
 
 .loading-state, .empty-state {
@@ -728,6 +692,102 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   z-index: 1000;
+}
+
+.confirm-modal {
+  background: white;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  padding: 28px 24px;
+  text-align: center;
+  animation: modalFadeIn 0.2s ease;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.confirm-icon {
+  margin-bottom: 20px;
+}
+
+.confirm-modal h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 12px 0;
+}
+
+.confirm-modal p {
+  font-size: 14px;
+  color: #6c757d;
+  margin: 0 0 8px 0;
+  line-height: 1.5;
+}
+
+.confirm-modal .info-text {
+  font-size: 12px;
+  color: #8B5CF6;
+  background: #f3e8ff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin: 12px 0 0 0;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.btn-confirm-cancel {
+  flex: 1;
+  padding: 10px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 10px;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-confirm-cancel:hover {
+  background: #e9ecef;
+}
+
+.btn-confirm-yes {
+  flex: 1;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #6B21A5 100%);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btn-confirm-yes:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+}
+
+.btn-confirm-yes:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .modal-overlay.modal-large {
@@ -794,46 +854,12 @@ onUnmounted(() => {
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .btn-secondary:hover {
   background: #e9ecef;
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 8px;
-}
-
-.form-group .required {
-  color: #dc3545;
-}
-
-.form-input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #e9ecef;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-.info-note {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px;
-  background: #f3e8ff;
-  border-radius: 10px;
-  font-size: 12px;
-  color: #6B21A5;
-  margin-top: 16px;
 }
 
 .detail-summary {
@@ -893,6 +919,7 @@ onUnmounted(() => {
   outline: none;
   font-size: 13px;
   background: transparent;
+  width: 200px;
 }
 
 .table-container {
@@ -934,11 +961,6 @@ onUnmounted(() => {
   color: #adb5bd;
 }
 
-.action-btn.view:hover {
-  background: #e9d5ff;
-  color: #8B5CF6;
-}
-
 .action-btn.delete:hover {
   background: #fee;
   color: #dc3545;
@@ -957,6 +979,10 @@ onUnmounted(() => {
     flex-direction: column;
     gap: 12px;
     align-items: flex-start;
+  }
+  
+  .search-box input {
+    width: 100%;
   }
 }
 </style>
