@@ -14,15 +14,17 @@
     </div>
 
     <div class="groups-section">
-      <div class="section-header">
+    <div class="section-header">
+      <div style="display: flex; align-items: center; gap: 12px;">
         <h2>Pull History</h2>
-        <button class="btn-refresh" @click="loadGroups" :disabled="loadingGroups">
-          <svg width="15" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M13.5 2.5V6H9.5M13 8C12.5 11.5 9.5 14 6 14C2.5 14 0 11.5 0 8C0 4.5 2.5 2 6 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          Refresh
-        </button>
       </div>
+      <button class="btn-refresh" @click="handleRefresh" :disabled="loadingGroups">
+        <svg width="15" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M13.5 2.5V6H9.5M13 8C12.5 11.5 9.5 14 6 14C2.5 14 0 11.5 0 8C0 4.5 2.5 2 6 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
 
       <div v-if="loadingGroups" class="loading-state">
         <div class="spinner"></div>
@@ -64,7 +66,12 @@
             </div>
             <div class="total-page">
               <span class="label">Total Page:</span>
-              <span>{{ group.total_pages }} pages</span>
+              <span v-if="group.status === 'IN_PROGRESS'">
+                {{ group.current_page || 0 }} pages
+              </span>
+              <span v-else>
+                {{ group.total_pages }} pages
+              </span>
             </div>
             <div v-if="group.error_message" class="error-message">
               <span class="label">Error:</span>
@@ -211,6 +218,8 @@ const pagination = ref({
 
 const showConfirmDialog = ref(false)
 const fetching = ref(false)
+let refreshInterval = null  
+let activeRefresh = false   
 
 const selectedGroup = ref(null)
 const loadingDetail = ref(false)
@@ -243,7 +252,11 @@ const getStatusClass = (status) => {
 }
 
 const loadGroups = async () => {
+  if (activeRefresh) return
+  
+  activeRefresh = true
   loadingGroups.value = true
+  
   try {
     const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/master-customer/groups`, {
       params: {
@@ -257,6 +270,15 @@ const loadGroups = async () => {
     
     groups.value = response.data.data
     pagination.value = response.data.pagination
+    
+    const hasInProgress = groups.value.some(group => group.status === 'IN_PROGRESS')
+    
+    if (hasInProgress) {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
+    
   } catch (error) {
     console.error('Failed to load groups:', error)
     if (error.response?.status === 401) {
@@ -264,6 +286,24 @@ const loadGroups = async () => {
     }
   } finally {
     loadingGroups.value = false
+    activeRefresh = false
+  }
+}
+
+const startAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+  }
+  
+  refreshInterval = setInterval(() => {
+    loadGroups()
+  }, 3000) 
+}
+
+const stopAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
   }
 }
 
@@ -296,19 +336,12 @@ const confirmFetchData = async () => {
     )
     
     if (response.data.success) {
-      alert('Proses penarikan data dimulai! Silahkan refresh halaman untuk melihat progress.')
+      alert('Proses penarikan data dimulai! Angka akan berubah secara real-time.')
       closeConfirmDialog()
-      loadGroups()
       
-      let attempts = 0
-      const interval = setInterval(() => {
-        if (attempts < 12) {
-          loadGroups()
-          attempts++
-        } else {
-          clearInterval(interval)
-        }
-      }, 5000)
+      await loadGroups()
+      
+      startAutoRefresh()
     }
   } catch (error) {
     console.error('Failed to fetch data:', error)
@@ -389,15 +422,31 @@ const deleteGroup = async (group) => {
   }
 }
 
+const handleRefresh = () => {
+  loadGroups()
+  const hasInProgress = groups.value.some(group => group.status === 'IN_PROGRESS')
+  if (hasInProgress) {
+    startAutoRefresh()
+  } else {
+    stopAutoRefresh()
+  }
+}
+
 onMounted(() => {
   const userData = localStorage.getItem('user')
   if (userData) {
     user.value = JSON.parse(userData)
   }
   loadGroups()
+  
+  const hasInProgress = groups.value.some(group => group.status === 'IN_PROGRESS')
+  if (hasInProgress) {
+    startAutoRefresh()
+  }
 })
 
 onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>
 
@@ -496,6 +545,37 @@ onUnmounted(() => {
 .btn-refresh:hover {
   background: #e9ecef;
   color: #8B5CF6;
+}
+
+.auto-refresh-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #e0e7ff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  color: #4f46e5;
+  font-weight: 500;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #4f46e5;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
 }
 
 .groups-grid {

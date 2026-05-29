@@ -154,7 +154,6 @@
       </div>
     </div>
 
-    <!-- Modal Edit Company -->
     <div v-if="showEditModal" class="modal-overlay" @click="closeEditModal">
       <div class="modal" @click.stop>
         <div class="modal-header">

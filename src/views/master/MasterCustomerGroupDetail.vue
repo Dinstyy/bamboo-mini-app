@@ -7,6 +7,11 @@
         </svg>
         Back to Pull History
       </button>
+      
+      <div v-if="selectedGroup?.status === 'IN_PROGRESS'" class="auto-refresh-indicator">
+        <div class="pulse-dot"></div>
+        <span>Live updating...</span>
+      </div>
     </div>
 
     <div v-if="loading" class="loading-state">
@@ -33,24 +38,30 @@
         </div>
       </div>
 
-        <div class="detail-summary">
+      <div class="detail-summary">
         <div class="summary-item">
-            <span class="label">Total Data:</span>
-            <span>{{ selectedGroup.total_data }} customers</span>
+          <span class="label">Total Data:</span>
+          <span class="total-count">{{ selectedGroup.total_data }} customers</span>
         </div>
         <div class="summary-item">
-            <span class="label">Created:</span>
-            <span>{{ formatDateTime(selectedGroup.createdAt) }}</span>
+          <span class="label">Created:</span>
+          <span>{{ formatDateTime(selectedGroup.createdAt) }}</span>
         </div>
         <div class="summary-item">
-            <span class="label">Total Pages:</span>
-            <span>{{ selectedGroup.total_pages }} pages</span>
+          <span class="label">Total Pages:</span>
+          <span v-if="selectedGroup.status === 'IN_PROGRESS'">
+            {{ selectedGroup.current_page || 0 }} pages
+          </span>
+          <span v-else>
+            {{ selectedGroup.total_pages }} pages
+          </span>
         </div>
+        
         <div v-if="selectedGroup.error_message" class="summary-item full-width">
-            <span class="label">Error:</span>
-            <span class="error-text">{{ selectedGroup.error_message }}</span>
+          <span class="label">Error:</span>
+          <span class="error-text">{{ selectedGroup.error_message }}</span>
         </div>
-        </div>
+      </div>
 
       <div class="transactions-table-wrapper">
         <div class="table-header">
@@ -101,7 +112,7 @@
 
 <script setup>
 import AppLayout from '@/components/AppLayout.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 
@@ -111,6 +122,7 @@ const route = useRoute()
 const selectedGroup = ref(null)
 const loading = ref(false)
 const searchDetail = ref('')
+let refreshInterval = null
 
 const goBack = () => {
   router.push('/master-customer')
@@ -150,12 +162,36 @@ const loadGroupDetail = async () => {
     )
     
     selectedGroup.value = response.data.data
+    
+    if (selectedGroup.value.status === 'IN_PROGRESS') {
+      startAutoRefresh()
+    } else {
+      stopAutoRefresh()
+    }
+    
   } catch (error) {
     console.error('Failed to load group detail:', error)
     alert('Gagal memuat detail group')
     router.push('/master-customer')
   } finally {
     loading.value = false
+  }
+}
+
+const startAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+  }
+  
+  refreshInterval = setInterval(() => {
+    loadGroupDetail()
+  }, 3000)
+}
+
+const stopAutoRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
   }
 }
 
@@ -169,15 +205,6 @@ const filteredDetails = computed(() => {
     (detail.customerName && detail.customerName.toLowerCase().includes(query)) ||
     (detail.phone && detail.phone.toLowerCase().includes(query))
   )
-})
-
-const sortedDetails = computed(() => {
-  const details = [...filteredDetails.value]
-  return details.sort((a, b) => {
-    const idA = parseInt(a.customerId) || 0
-    const idB = parseInt(b.customerId) || 0
-    return idA - idB
-  })
 })
 
 const deleteDetail = async (detail) => {
@@ -205,6 +232,10 @@ const deleteDetail = async (detail) => {
 
 onMounted(() => {
   loadGroupDetail()
+})
+
+onUnmounted(() => {
+  stopAutoRefresh()
 })
 </script>
 
@@ -285,6 +316,50 @@ margin-left: 17px;
 .status-failed {
   background: #fee;
   color: #dc3545;
+}
+
+.back-button-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.auto-refresh-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #e0e7ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #8B5CF6;
+  font-weight: 500;
+}
+
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #8B5CF6;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+.total-count {
+  font-weight: 600;
+  color: #8B5CF6;
+  font-size: 15px;
 }
 
 .detail-summary {
